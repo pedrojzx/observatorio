@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Painel Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Painel Administrativo</h1>
+        <p>Gerencie os usuários da plataforma.</p>
+    </div>
+    <a href="{{ url_for('admin.novo_usuario') }}" class="btn btn-laranja">+ Cadastrar Usuário</a>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="num">{{ total_usuarios }}</div>
+        <div class="lbl">Usuários Cadastrados</div>
+    </div>
+    <div class="stat-card" style="border-color:#2a4494;">
+        <div class="num">{{ total_projetos }}</div>
+        <div class="lbl">Projetos Submetidos</div>
+    </div>
+    <div class="stat-card" style="border-color:#16a34a;">
+        <div class="num">{{ projetos_avaliados }}</div>
+        <div class="lbl">Projetos Avaliados</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>👥 Usuários ({{ usuarios | length }})</h2>
+    </div>
+    {% if usuarios %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Perfil</th>
+                    <th>Turma</th>
+                    <th>Cadastrado em</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in usuarios %}
+                <tr>
+                    <td style="color:#9ca3af; font-size:.75rem; font-family:monospace;">{{ '%03d' % u.id }}</td>
+                    <td><strong>{{ u.nome }}</strong></td>
+                    <td style="font-size:.85rem;">{{ u.email }}</td>
+                    <td>
+                        <span class="badge-perfil" style="
+                            background: {{ '#1a2f6e' if u.perfil == 'admin' else ('#f07621' if u.perfil == 'professor' else '#16a34a') }};
+                            color:#fff; font-size:.65rem; font-weight:700; padding:2px 8px;
+                            border-radius:20px; text-transform:uppercase; letter-spacing:.05em;
+                        ">{{ u.perfil }}</span>
+                    </td>
+                    <td style="font-size:.85rem; color:#6b7280;">{{ u.turma or '—' }}</td>
+                    <td style="font-size:.78rem; color:#9ca3af;">{{ u.criado_em.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <div style="display:flex; gap:.4rem;">
+                            <a href="{{ url_for('admin.editar_usuario', id=u.id) }}" class="btn btn-primary btn-sm">Editar</a>
+                            {% if u.id != current_user.id %}
+                            <form method="POST" action="{{ url_for('admin.excluir_usuario', id=u.id) }}"
+                                  onsubmit="return confirm('Excluir o usuário {{ u.nome }}?');" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">👤</div>
+        <h3>Nenhum usuário cadastrado</h3>
+        <p>Clique em <strong>Cadastrar Usuário</strong> para começar.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

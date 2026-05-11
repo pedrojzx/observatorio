@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Painel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>
+            {% if current_user.perfil == 'aluno' %}Meus Projetos
+            {% elif current_user.perfil == 'professor' %}Projetos para Avaliação
+            {% else %}Todos os Projetos
+            {% endif %}
+        </h1>
+        <p>
+            {% if current_user.perfil == 'aluno' %}Gerencie e acompanhe seus projetos submetidos.
+            {% elif current_user.perfil == 'professor' %}Visualize e avalie os projetos dos alunos.
+            {% else %}Visão geral de todos os projetos da plataforma.
+            {% endif %}
+        </p>
+    </div>
+    {% if current_user.perfil == 'aluno' %}
+    <a href="{{ url_for('projetos.novo_projeto') }}" class="btn btn-laranja">+ Submeter Projeto</a>
+    {% endif %}
+</div>
+
+{% if current_user.perfil in ('admin', 'professor') %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="num">{{ projetos | length }}</div>
+        <div class="lbl">Total de Projetos</div>
+    </div>
+    <div class="stat-card" style="border-color: #0369a1;">
+        <div class="num">{{ projetos | selectattr('status', 'equalto', 'enviado') | list | length }}</div>
+        <div class="lbl">Aguardando Avaliação</div>
+    </div>
+    <div class="stat-card" style="border-color: #16a34a;">
+        <div class="num">{{ projetos | selectattr('status', 'equalto', 'avaliado') | list | length }}</div>
+        <div class="lbl">Avaliados</div>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h2>
+            {% if current_user.perfil == 'aluno' %}Projetos Submetidos ({{ projetos | length }})
+            {% else %}Todos os Projetos ({{ projetos | length }})
+            {% endif %}
+        </h2>
+    </div>
+
+    {% if projetos %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Título</th>
+                    {% if current_user.perfil != 'aluno' %}<th>Aluno</th>{% endif %}
+                    <th>Tecnologias</th>
+                    <th>Status</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in projetos %}
+                <tr>
+                    <td style="color:#9ca3af; font-size:.75rem; font-family:monospace;">{{ '%03d' % p.id }}</td>
+                    <td>
+                        <strong>{{ p.titulo }}</strong>
+                        {% if p.link_github %}
+                        <br><a href="{{ p.link_github }}" target="_blank" style="font-size:.75rem; color:#0369a1;">🔗 GitHub</a>
+                        {% endif %}
+                    </td>
+                    {% if current_user.perfil != 'aluno' %}
+                    <td>
+                        {{ p.aluno.nome }}<br>
+                        <span style="font-size:.75rem; color:#9ca3af;">{{ p.aluno.turma or '' }}</span>
+                    </td>
+                    {% endif %}
+                    <td style="font-size:.8rem; color:#6b7280;">{{ p.tecnologias or '—' }}</td>
+                    <td><span class="status status-{{ p.status }}">{{ p.status.replace('_', ' ') }}</span></td>
+                    <td style="font-size:.78rem; color:#9ca3af;">{{ p.criado_em.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <div style="display:flex; gap:.4rem; flex-wrap:wrap;">
+                            <a href="{{ url_for('projetos.ver_projeto', id=p.id) }}" class="btn btn-outline btn-sm">Ver</a>
+                            {% if current_user.perfil == 'aluno' and p.aluno_id == current_user.id %}
+                                <a href="{{ url_for('projetos.editar_projeto', id=p.id) }}" class="btn btn-primary btn-sm">Editar</a>
+                                <form method="POST" action="{{ url_for('projetos.excluir_projeto', id=p.id) }}"
+                                      onsubmit="return confirm('Tem certeza que deseja excluir este projeto?');" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                                </form>
+                            {% endif %}
+                            {% if current_user.perfil in ('professor', 'admin') %}
+                                <a href="{{ url_for('projetos.avaliar_projeto', id=p.id) }}" class="btn btn-laranja btn-sm">Avaliar</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📂</div>
+        <h3>Nenhum projeto encontrado</h3>
+        {% if current_user.perfil == 'aluno' %}
+        <p>Clique em <strong>Submeter Projeto</strong> para começar!</p>
+        {% else %}
+        <p>Ainda não há projetos submetidos na plataforma.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

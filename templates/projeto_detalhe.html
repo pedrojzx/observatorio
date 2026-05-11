@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}{{ projeto.titulo }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ projeto.titulo }}</h1>
+        <p>Submetido em {{ projeto.criado_em.strftime('%d/%m/%Y às %H:%M') }} por <strong>{{ projeto.aluno.nome }}</strong></p>
+    </div>
+    <div style="display:flex; gap:.5rem;">
+        <a href="{{ url_for('projetos.painel') }}" class="btn btn-outline">← Voltar</a>
+        {% if current_user.perfil == 'aluno' and projeto.aluno_id == current_user.id %}
+        <a href="{{ url_for('projetos.editar_projeto', id=projeto.id) }}" class="btn btn-primary">Editar</a>
+        {% endif %}
+        {% if current_user.perfil in ('professor', 'admin') %}
+        <a href="{{ url_for('projetos.avaliar_projeto', id=projeto.id) }}" class="btn btn-laranja">Avaliar</a>
+        {% endif %}
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem;">
+
+    <!-- Coluna principal -->
+    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+        <div class="card">
+            <div class="card-header"><h2>📄 Descrição do Projeto</h2></div>
+            <div class="card-body">
+                <p style="line-height:1.8; color:#374151;">{{ projeto.descricao }}</p>
+            </div>
+        </div>
+
+        {% if projeto.avaliacao %}
+        <div class="card" style="border-left: 4px solid #16a34a;">
+            <div class="card-header"><h2>✅ Avaliação do Professor</h2></div>
+            <div class="card-body">
+                <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+                    <div style="font-size:2.5rem; font-weight:800; color:#1a2f6e;">
+                        {{ '%.1f' % projeto.avaliacao.nota }}
+                    </div>
+                    <div>
+                        <div style="font-size:.8rem; color:#6b7280;">Nota</div>
+                        <div style="font-size:.85rem; color:#374151;">
+                            Professor: <strong>{{ projeto.avaliacao.professor.nome }}</strong>
+                        </div>
+                        <div style="font-size:.75rem; color:#9ca3af;">
+                            {{ projeto.avaliacao.criado_em.strftime('%d/%m/%Y') }}
+                        </div>
+                    </div>
+                </div>
+                {% if projeto.avaliacao.comentario %}
+                <div style="background:#f3f4f6; border-radius:8px; padding:1rem; font-size:.875rem; line-height:1.6;">
+                    {{ projeto.avaliacao.comentario }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+        <div class="card">
+            <div class="card-header"><h2>ℹ️ Informações</h2></div>
+            <div class="card-body" style="display:flex; flex-direction:column; gap:.85rem;">
+                <div>
+                    <div style="font-size:.72rem; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.05em;">Status</div>
+                    <span class="status status-{{ projeto.status }}" style="margin-top:.3rem; display:inline-block;">
+                        {{ projeto.status.replace('_', ' ') }}
+                    </span>
+                </div>
+                <div>
+                    <div style="font-size:.72rem; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.05em;">Aluno</div>
+                    <div style="font-size:.875rem; margin-top:.2rem;">{{ projeto.aluno.nome }}</div>
+                    {% if projeto.aluno.turma %}
+                    <div style="font-size:.78rem; color:#9ca3af;">Turma: {{ projeto.aluno.turma }}</div>
+                    {% endif %}
+                </div>
+                {% if projeto.tecnologias %}
+                <div>
+                    <div style="font-size:.72rem; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Tecnologias</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:.3rem;">
+                        {% for tech in projeto.tecnologias.split(',') %}
+                        <span style="background:#e0f2fe; color:#0369a1; font-size:.72rem; font-weight:600; padding:3px 10px; border-radius:20px;">{{ tech.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% if projeto.link_github %}
+                <div>
+                    <div style="font-size:.72rem; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.05em;">Repositório</div>
+                    <a href="{{ projeto.link_github }}" target="_blank"
+                       style="font-size:.82rem; color:#0369a1; word-break:break-all;">🔗 Ver no GitHub</a>
+                </div>
+                {% endif %}
+                {% if projeto.arquivo %}
+                <div>
+                    <a href="{{ url_for('projetos.download_arquivo', filename=projeto.arquivo) }}">
+    📥 Baixar arquivo
+</a>
+                </div>
+                {% endif %}
+                <div>
+                    <div style="font-size:.72rem; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.05em;">Atualizado em</div>
+                    <div style="font-size:.82rem; margin-top:.2rem;">{{ projeto.atualizado_em.strftime('%d/%m/%Y') }}</div>
+                </div>
+            </div>
+        </div>
+
+        {% if current_user.perfil == 'aluno' and projeto.aluno_id == current_user.id %}
+        <form method="POST" action="{{ url_for('projetos.excluir_projeto', id=projeto.id) }}"
+              onsubmit="return confirm('Tem certeza que deseja excluir este projeto? Esta ação não pode ser desfeita.');">
+            <button type="submit" class="btn btn-danger" style="width:100%;">🗑️ Excluir Projeto</button>
+        </form>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

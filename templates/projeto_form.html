@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}{{ acao }} Projeto{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ acao }} Projeto</h1>
+        <p>{{ "Preencha os dados para submeter seu projeto integrador." if acao == 'Novo' else "Atualize as informações do projeto." }}</p>
+    </div>
+    <a href="{{ url_for('projetos.painel') }}" class="btn btn-outline">← Voltar</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>📋 Dados do Projeto</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+
+            <div class="form-group">
+                <label for="titulo">Título do Projeto *</label>
+                <input type="text" id="titulo" name="titulo"
+                       value="{{ projeto.titulo if projeto else '' }}"
+                       placeholder="Ex.: Observatório de Projetos Integradores" required>
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Descrição / Resumo *</label>
+                <textarea id="descricao" name="descricao" rows="5" required
+                          placeholder="Descreva o problema, solução proposta e objetivos do projeto...">{{ projeto.descricao if projeto else '' }}</textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tecnologias">Tecnologias Utilizadas</label>
+                    <input type="text" id="tecnologias" name="tecnologias"
+                           value="{{ projeto.tecnologias if projeto else '' }}"
+                           placeholder="Ex.: Python, Flask, MySQL, HTML, CSS">
+                </div>
+                <div class="form-group">
+                    <label for="link_github">Link do Repositório GitHub</label>
+                    <input type="text" id="link_github" name="link_github"
+                           value="{{ projeto.link_github if projeto else '' }}"
+                           placeholder="https://github.com/usuario/repositorio">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="arquivo">Arquivo do Projeto (PDF, ZIP, DOCX — máx. 16MB)</label>
+                {% if projeto and projeto.arquivo %}
+                    <p style="font-size:.8rem; color:#16a34a; margin-bottom:.4rem;">
+                        ✅ Arquivo atual: <strong>{{ projeto.arquivo }}</strong>
+                    </p>
+                {% endif %}
+                <input type="file" id="arquivo" name="arquivo" accept=".pdf,.zip,.rar,.docx,.png,.jpg,.jpeg">
+            </div>
+
+            <div style="display:flex; gap:.75rem; justify-content:flex-end; margin-top:1.5rem;">
+                <a href="{{ url_for('projetos.painel') }}" class="btn btn-outline">Cancelar</a>
+                <button type="submit" class="btn btn-laranja">
+                    {{ "📤 Submeter Projeto" if acao == 'Novo' else "💾 Salvar Alterações" }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
