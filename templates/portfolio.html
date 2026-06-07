@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfólio de Projetos — Senac ADS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --azul: #1a2f6e; --azul-mid: #2a4494; --laranja: #f07621;
+            --cinza: #6b7280; --cinza-b: #e5e7eb; --cinza-l: #f3f4f6;
+            --branco: #fff; --shadow: 0 4px 24px rgba(26,47,110,.10); --radius: 12px;
+        }
+        body { font-family: 'Sora', sans-serif; background: #f0f2f8; color: #111827; min-height: 100vh; }
+
+        /* NAV */
+        nav { background: var(--azul); padding: 0 2rem; display: flex; align-items: center;
+              justify-content: space-between; height: 64px; box-shadow: 0 2px 12px rgba(0,0,0,.2); }
+        .nav-brand { display: flex; align-items: center; gap: .75rem; text-decoration: none; color: #fff; }
+        .nav-brand .dot { width: 10px; height: 10px; background: var(--laranja); border-radius: 50%; }
+        .nav-brand span { font-weight: 700; font-size: 1rem; }
+        .nav-badge { background: var(--laranja); color: #fff; font-size: .65rem; font-weight: 700;
+                     padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: .05em; }
+        .nav-login { color: rgba(255,255,255,.8); text-decoration: none; font-size: .85rem;
+                     font-weight: 600; padding: .4rem 1rem; border: 1px solid rgba(255,255,255,.3);
+                     border-radius: 8px; transition: all .2s; }
+        .nav-login:hover { background: rgba(255,255,255,.15); color: #fff; }
+
+        /* HERO */
+        .hero { background: linear-gradient(135deg, var(--azul) 0%, var(--azul-mid) 100%);
+                color: #fff; padding: 3rem 2rem; text-align: center; }
+        .hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: .5rem; }
+        .hero p  { font-size: 1rem; opacity: .85; max-width: 600px; margin: 0 auto 1.5rem; }
+        .hero-stats { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+        .hero-stat { text-align: center; }
+        .hero-stat .num { font-size: 1.75rem; font-weight: 800; color: var(--laranja); }
+        .hero-stat .lbl { font-size: .8rem; opacity: .8; }
+
+        /* CONTAINER */
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+        /* FILTROS */
+        .filtros { background: var(--branco); border-radius: var(--radius); box-shadow: var(--shadow);
+                   padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; }
+        .form-group { display: flex; flex-direction: column; gap: .3rem; flex: 1; min-width: 140px; }
+        label { font-size: .78rem; font-weight: 700; color: var(--azul); text-transform: uppercase; letter-spacing: .04em; }
+        input, select { padding: .55rem .85rem; border: 1.5px solid var(--cinza-b); border-radius: 8px;
+                        font-family: 'Sora', sans-serif; font-size: .875rem; outline: none;
+                        transition: border-color .2s; }
+        input:focus, select:focus { border-color: var(--azul-mid); }
+        .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .55rem 1.2rem;
+               border-radius: 8px; font-family: 'Sora', sans-serif; font-size: .85rem;
+               font-weight: 600; cursor: pointer; text-decoration: none; border: none; transition: all .2s; }
+        .btn-primary { background: var(--azul); color: #fff; }
+        .btn-primary:hover { background: var(--azul-mid); }
+        .btn-outline { background: transparent; color: var(--azul); border: 1.5px solid var(--azul); }
+        .btn-outline:hover { background: var(--azul); color: #fff; }
+
+        /* GRID DE PROJETOS */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+
+        .proj-card { background: var(--branco); border-radius: var(--radius); box-shadow: var(--shadow);
+                     overflow: hidden; display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s; }
+        .proj-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(26,47,110,.15); }
+
+        .proj-card-top { background: linear-gradient(135deg, var(--azul), var(--azul-mid));
+                         padding: 1.25rem; color: #fff; }
+        .proj-card-top h3 { font-size: .95rem; font-weight: 700; margin-bottom: .4rem; }
+        .proj-card-top .aluno { font-size: .78rem; opacity: .85; display: flex; align-items: center; gap: .4rem; }
+
+        .proj-card-body { padding: 1.25rem; flex: 1; display: flex; flex-direction: column; gap: .75rem; }
+        .proj-desc { font-size: .85rem; color: #374151; line-height: 1.65;
+                     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .tags { display: flex; flex-wrap: wrap; gap: .3rem; }
+        .tag  { background: #e0f2fe; color: #0369a1; font-size: .72rem; font-weight: 600;
+                padding: 3px 10px; border-radius: 20px; }
+
+        .proj-card-footer { padding: .85rem 1.25rem; border-top: 1px solid var(--cinza-b);
+                            display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+        .nota-badge { background: var(--azul); color: #fff; font-size: .82rem; font-weight: 800;
+                      padding: .35rem .9rem; border-radius: 20px; display: inline-flex; align-items: center;
+                      gap: .35rem; white-space: nowrap; flex-shrink: 0; }
+        .nota-badge.alta { background: #16a34a; }
+        .nota-badge.media { background: #d97706; }
+        .nota-badge.baixa { background: #dc2626; }
+        .github-link { display: inline-flex; align-items: center; gap: .3rem; font-size: .78rem;
+                       color: #0369a1; text-decoration: none; font-weight: 600;
+                       background: #eff6ff; padding: .3rem .7rem; border-radius: 8px;
+                       border: 1px solid #bfdbfe; white-space: nowrap; transition: background .15s; }
+        .github-link:hover { background: #dbeafe; }
+        .card-actions { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+        .btn-detalhes { display: inline-flex; align-items: center; gap: .35rem; font-size: .78rem;
+                        background: #1a2f6e; color: #fff; padding: .3rem .75rem; border-radius: 8px;
+                        text-decoration: none; font-weight: 600; white-space: nowrap; transition: background .15s; }
+        .btn-detalhes:hover { background: #2a4494; }
+        .data-pill { font-size: .7rem; color: #9ca3af; white-space: nowrap; }
+
+        .turma-pill { background: #e0e7ff; color: #3730a3; font-size: .7rem; font-weight: 700;
+                      padding: 2px 8px; border-radius: 20px; }
+        .turno-pill { background: #fef3c7; color: #92400e; font-size: .7rem; font-weight: 700;
+                      padding: 2px 8px; border-radius: 20px; }
+
+        /* EMPTY */
+        .empty { text-align: center; padding: 4rem 1rem; color: var(--cinza); }
+        .empty .icon { font-size: 3rem; margin-bottom: 1rem; }
+        .empty h3 { font-size: 1.2rem; color: var(--azul); margin-bottom: .5rem; }
+
+        /* FOOTER */
+        footer { text-align: center; padding: 1.5rem; font-size: .78rem; color: var(--cinza);
+                 background: var(--branco); border-top: 1px solid var(--cinza-b); margin-top: 2rem; }
+
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.5rem; }
+            .filtros { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a class="nav-brand" href="{{ url_for('portfolio.index') }}">
+        <div class="dot"></div>
+        <span>Observatório PI</span>
+    </a>
+    <div style="display:flex; align-items:center; gap:1rem;">
+        <span class="nav-badge">Portfólio Público</span>
+        {% if current_user.is_authenticated and current_user.perfil in ('aluno', 'professor') %}
+            <a class="nav-login" href="{{ url_for('projetos.painel') }}"
+               style="background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.4);">← Voltar ao Painel</a>
+        {% elif current_user.is_authenticated and current_user.perfil == 'admin' %}
+            <a class="nav-login" href="{{ url_for('admin.dashboard') }}"
+               style="background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.4);">← Painel Admin</a>
+        {% elif current_user.is_authenticated and current_user.perfil == 'empresa' %}
+            <span style="color:rgba(255,255,255,.7); font-size:.82rem; font-weight:600;">{{ current_user.nome }}</span>
+            <a class="nav-login" href="{{ url_for('auth.logout') }}" style="background:rgba(220,38,38,.2); border-color:rgba(220,38,38,.5);">Sair</a>
+        {% elif not current_user.is_authenticated %}
+            <a class="nav-login" href="{{ url_for('auth.login') }}">Entrar no Sistema</a>
+        {% endif %}
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+    <h1>🎓 Portfólio de Projetos Integradores</h1>
+    <p>Conheça os sistemas desenvolvidos pelos alunos do curso de Análise e Desenvolvimento de Sistemas do Senac Fecomércio.</p>
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <div class="num">{{ projetos | length }}</div>
+            <div class="lbl">Projetos Avaliados</div>
+        </div>
+        <div class="hero-stat">
+            <div class="num">{{ projetos | map(attribute='aluno') | map(attribute='turma') | select | list | unique | list | length }}</div>
+            <div class="lbl">Turmas</div>
+        </div>
+        {% if projetos %}
+        <div class="hero-stat">
+            <div class="num">{{ '%.1f' % (projetos | selectattr('avaliacao') | map(attribute='avaliacao') | map(attribute='nota') | list | sum / ([projetos | selectattr('avaliacao') | list | length, 1] | max)) }}</div>
+            <div class="lbl">Média Geral</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- FILTROS -->
+    <form method="GET" action="{{ url_for('portfolio.index') }}" class="filtros">
+        <div class="form-group" style="flex:2; min-width:200px;">
+            <label for="q">Buscar</label>
+            <input type="text" id="q" name="q" value="{{ busca }}" placeholder="Título, tecnologia, descrição...">
+        </div>
+        <div class="form-group">
+            <label for="turma">Turma</label>
+            <select id="turma" name="turma">
+                <option value="">Todas</option>
+                {% for t in turmas %}
+                <option value="{{ t }}" {{ 'selected' if filtro_turma == t }}>{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="turno">Turno</label>
+            <select id="turno" name="turno">
+                <option value="">Todos</option>
+                <option value="manha"  {{ 'selected' if filtro_turno == 'manha' }}>Manhã</option>
+                <option value="tarde"  {{ 'selected' if filtro_turno == 'tarde' }}>Tarde</option>
+                <option value="noite"  {{ 'selected' if filtro_turno == 'noite' }}>Noite</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+        {% if busca or filtro_turma or filtro_turno %}
+        <a href="{{ url_for('portfolio.index') }}" class="btn btn-outline">✕ Limpar</a>
+        {% endif %}
+    </form>
+
+    <!-- GRID -->
+    {% if projetos %}
+    <div class="grid">
+        {% for p in projetos %}
+        {% set nota = p.avaliacao.nota if p.avaliacao else None %}
+        {% set nota_cls = 'alta' if nota and nota >= 7 else ('media' if nota and nota >= 5 else 'baixa') %}
+        <div class="proj-card">
+            <div class="proj-card-top">
+                <h3>{{ p.titulo }}</h3>
+                <div class="aluno">
+                    👤 {{ p.aluno.nome }}
+                    {% if p.aluno.turma %}
+                    <span class="turma-pill">{{ p.aluno.turma }}</span>
+                    {% endif %}
+                    {% if p.aluno.turno %}
+                    <span class="turno-pill">{{ p.aluno.turno_display }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="proj-card-body">
+                <p class="proj-desc">{{ p.descricao }}</p>
+                {% if p.tecnologias %}
+                <div class="tags">
+                    {% for tech in p.tecnologias.split(',') %}
+                    <span class="tag">{{ tech.strip() }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if p.avaliacao and p.avaliacao.nota_funcionalidade is not none %}
+                <div style="font-size:.78rem; color:#6b7280;">
+                    <strong style="color:#1a2f6e;">Rubrica:</strong>
+                    Func. {{ p.avaliacao.nota_funcionalidade }} ·
+                    Código {{ p.avaliacao.nota_codigo }} ·
+                    Doc. {{ p.avaliacao.nota_documentacao }} ·
+                    Interface {{ p.avaliacao.nota_interface }} ·
+                    Apres. {{ p.avaliacao.nota_apresentacao }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="proj-card-footer">
+                {% if nota %}
+                <span class="nota-badge {{ nota_cls }}">⭐ {{ '%.1f' % nota }}</span>
+                {% else %}
+                <span style="font-size:.72rem; color:#9ca3af; font-style:italic;">Sem nota</span>
+                {% endif %}
+                <div class="card-actions">
+                    {% if p.link_github %}
+                    <a href="{{ p.link_github }}" target="_blank" class="github-link">🔗 GitHub</a>
+                    {% endif %}
+                    {% if current_user.is_authenticated and current_user.perfil in ('empresa', 'admin', 'professor') %}
+                    <a href="/portfolio/{{ p.id }}" class="btn-detalhes">📋 Ver Detalhes</a>
+                    {% endif %}
+                    <span class="data-pill">{{ p.criado_em.strftime('%m/%Y') }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+        <div class="icon">🔍</div>
+        <h3>Nenhum projeto encontrado</h3>
+        <p>{% if busca or filtro_turma or filtro_turno %}Tente outros filtros.{% else %}Ainda não há projetos avaliados publicados.{% endif %}</p>
+    </div>
+    {% endif %}
+
+</div>
+
+<footer>
+    Observatório de Projetos Integradores — Senac Fecomércio &nbsp;|&nbsp; ADS 2º Módulo
+    &nbsp;|&nbsp; <a href="{{ url_for('lgpd.privacidade') }}" style="color:var(--cinza);">Política de Privacidade</a>
+</footer>
+
+</body>
+</html>

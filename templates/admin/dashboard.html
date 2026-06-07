@@ -2,68 +2,384 @@
 {% block title %}Painel Admin{% endblock %}
 
 {% block content %}
+<style>
+    .dash-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .dash-card {
+        background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+        padding: 1.25rem; border-left: 4px solid var(--azul); text-align: center;
+        transition: transform .2s;
+    }
+    .dash-card:hover { transform: translateY(-2px); }
+    .dash-card .num { font-size: 2rem; font-weight: 800; color: var(--azul); }
+    .dash-card .lbl { font-size: .78rem; color: var(--cinza); margin-top: .2rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .dash-card.laranja  { border-color: var(--laranja); }  .dash-card.laranja  .num { color: var(--laranja); }
+    .dash-card.verde    { border-color: #16a34a; }          .dash-card.verde    .num { color: #16a34a; }
+    .dash-card.amarelo  { border-color: #d97706; }          .dash-card.amarelo  .num { color: #d97706; }
+    .dash-card.roxo     { border-color: #7c3aed; }          .dash-card.roxo     .num { color: #7c3aed; }
+
+    /* Gráfico de barra manual */
+    .bar-track { background: var(--cinza-b); border-radius: 20px; height: 10px; overflow: hidden; margin: .4rem 0; }
+    .bar-fill  { height: 100%; border-radius: 20px; transition: width .6s ease; }
+
+    .turma-row { display: grid; grid-template-columns: 110px 1fr 60px 60px 60px 70px; align-items: center; gap: .75rem; padding: .7rem 1.25rem; border-bottom: 1px solid var(--cinza-b); font-size: .82rem; }
+    .turma-row:last-child { border-bottom: none; }
+    .turma-row:hover { background: #f8f9ff; }
+    .turma-head { background: var(--azul); color: #fff; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; border-radius: var(--radius) var(--radius) 0 0; }
+
+    .nota-chip { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: .78rem; font-weight: 700; }
+    .nota-alta  { background: #dcfce7; color: #15803d; }
+    .nota-media { background: #fef3c7; color: #92400e; }
+    .nota-baixa { background: #fee2e2; color: #dc2626; }
+    .nota-nd    { background: var(--cinza-b); color: var(--cinza); }
+
+    .turno-bar-wrap { display: flex; flex-direction: column; gap: .5rem; }
+    .turno-line { display: flex; align-items: center; gap: .75rem; font-size: .82rem; }
+    .turno-name { width: 60px; font-weight: 600; color: var(--azul); }
+    .turno-bar-track { flex: 1; background: var(--cinza-b); border-radius: 20px; height: 18px; overflow: hidden; position: relative; }
+    .turno-bar-fill  { height: 100%; border-radius: 20px; display: flex; align-items: center; padding-left: 8px; font-size: .72rem; font-weight: 700; color: #fff; white-space: nowrap; }
+    .turno-count { width: 40px; font-size: .78rem; color: var(--cinza); text-align: right; }
+
+    .relatorio-btns { display: flex; gap: .75rem; }
+    .btn-csv { background: #16a34a; color: #fff; }
+    .btn-csv:hover { background: #15803d; }
+    .btn-pdf { background: #dc2626; color: #fff; }
+    .btn-pdf:hover { background: #b91c1c; }
+
+    .ult-aval-row { display: flex; align-items: center; justify-content: space-between; padding: .65rem 1.25rem; border-bottom: 1px solid var(--cinza-b); font-size: .82rem; }
+    .ult-aval-row:last-child { border-bottom: none; }
+</style>
+
 <div class="page-header">
     <div>
         <h1>Painel Administrativo</h1>
-        <p>Gerencie os usuários da plataforma.</p>
+        <p>Coordenador · Acompanhamento geral dos Projetos Integradores</p>
     </div>
-    <a href="{{ url_for('admin.novo_usuario') }}" class="btn btn-laranja">+ Cadastrar Usuário</a>
+    <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+        <div class="relatorio-btns">
+            <a href="{{ url_for('admin.relatorio_csv') }}" class="btn btn-csv">📊 Exportar CSV</a>
+            <a href="{{ url_for('admin.relatorio_pdf') }}" class="btn btn-pdf" target="_blank">📄 Exportar PDF</a>
+        </div>
+        <a href="{{ url_for('admin.novo_usuario') }}" class="btn btn-laranja">+ Usuário</a>
+    </div>
 </div>
 
-<div class="stats-grid">
-    <div class="stat-card">
+{# ── CARDS DE MÉTRICAS ── #}
+<div class="dash-grid">
+    <div class="dash-card">
         <div class="num">{{ total_usuarios }}</div>
-        <div class="lbl">Usuários Cadastrados</div>
+        <div class="lbl">Usuários</div>
     </div>
-    <div class="stat-card" style="border-color:#2a4494;">
+    <div class="dash-card laranja">
         <div class="num">{{ total_projetos }}</div>
-        <div class="lbl">Projetos Submetidos</div>
+        <div class="lbl">Projetos</div>
     </div>
-    <div class="stat-card" style="border-color:#16a34a;">
+    <div class="dash-card amarelo">
+        <div class="num">{{ projetos_enviados }}</div>
+        <div class="lbl">Aguardando</div>
+    </div>
+    <div class="dash-card roxo">
+        <div class="num">{{ projetos_em_aval }}</div>
+        <div class="lbl">Em Avaliação</div>
+    </div>
+    <div class="dash-card verde">
         <div class="num">{{ projetos_avaliados }}</div>
-        <div class="lbl">Projetos Avaliados</div>
+        <div class="lbl">Avaliados</div>
     </div>
 </div>
 
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+
+    {# ── MÉTRICAS POR TURMA ── #}
+    <div class="card">
+        <div class="card-header"><h2>🏫 Acompanhamento por Turma</h2></div>
+        {% if stats_turma %}
+        <div class="turma-row turma-head">
+            <div>Turma</div><div>Progresso</div><div style="text-align:center;">Alunos</div>
+            <div style="text-align:center;">Projetos</div><div style="text-align:center;">Aval.</div>
+            <div style="text-align:center;">Média</div>
+        </div>
+        {% for s in stats_turma %}
+        <div class="turma-row">
+            <div style="font-weight:700; color:var(--azul);">{{ s.turma }}</div>
+            <div>
+                <div style="display:flex; justify-content:space-between; font-size:.72rem; color:var(--cinza);">
+                    <span>{{ s.pct }}% avaliados</span>
+                    <span>{{ s.avaliados }}/{{ s.projetos }}</span>
+                </div>
+                <div class="bar-track">
+                    <div class="bar-fill" style="width:{{ s.pct }}%; background:{{ '#16a34a' if s.pct == 100 else ('#d97706' if s.pct >= 50 else '#1a2f6e') }};"></div>
+                </div>
+            </div>
+            <div style="text-align:center; color:var(--cinza);">{{ s.alunos }}</div>
+            <div style="text-align:center; color:var(--cinza);">{{ s.projetos }}</div>
+            <div style="text-align:center; color:var(--cinza);">{{ s.avaliados }}</div>
+            <div style="text-align:center;">
+                {% if s.media is not none %}
+                <span class="nota-chip {{ 'nota-alta' if s.media >= 7 else ('nota-media' if s.media >= 5 else 'nota-baixa') }}">{{ s.media }}</span>
+                {% else %}
+                <span class="nota-chip nota-nd">—</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="padding:2rem; text-align:center; color:var(--cinza); font-size:.875rem;">Nenhuma turma cadastrada ainda.</div>
+        {% endif %}
+    </div>
+
+    {# ── MÉTRICAS POR TURNO + ÚLTIMAS AVALIAÇÕES ── #}
+    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+
+        <div class="card">
+            <div class="card-header"><h2>🌗 Projetos por Turno</h2></div>
+            <div class="card-body">
+                {% set nomes_turno = {'manha': ' Manhã', 'tarde': ' Tarde', 'noite': ' Noite'} %}
+                {% set cores_turno = {'manha': '#f07621', 'tarde': '#2a4494', 'noite': '#7c3aed'} %}
+                {% set max_t = [stats_turno | map(attribute='total') | list | max, 1] | max %}
+                <div class="turno-bar-wrap" style="padding:.5rem 0;">
+                    {% for s in stats_turno %}
+                    <div class="turno-line">
+                        <div class="turno-name">{{ nomes_turno[s.turno] }}</div>
+                        <div class="turno-bar-track">
+                            {% set pct = (s.total / max_t * 100) | round | int %}
+                            <div class="turno-bar-fill" style="width:{{ pct }}%; background:{{ cores_turno[s.turno] }};">
+                                {% if s.total > 0 %}{{ s.avaliados }}/{{ s.total }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="turno-count">{{ s.total }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="font-size:.75rem; color:var(--cinza); text-align:center; margin-top:.5rem;">Números dentro da barra = avaliados / total</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h2>🕐 Últimas Avaliações</h2></div>
+            {% if ultimas_avaliacoes %}
+            {% for av in ultimas_avaliacoes %}
+            <div class="ult-aval-row">
+                <div>
+                    <div style="font-weight:600; font-size:.82rem; color:var(--azul);">{{ av.projeto.titulo[:35] }}{% if av.projeto.titulo|length > 35 %}…{% endif %}</div>
+                    <div style="font-size:.72rem; color:var(--cinza);">por {{ av.professor.nome }} · {{ av.criado_em.strftime('%d/%m/%Y') }}</div>
+                </div>
+                <span class="nota-chip {{ 'nota-alta' if av.nota >= 7 else ('nota-media' if av.nota >= 5 else 'nota-baixa') }}">{{ '%.1f' % av.nota }}</span>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div style="padding:1.5rem; text-align:center; color:var(--cinza); font-size:.875rem;">Nenhuma avaliação registrada ainda.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{# ── PROJETOS — SEÇÃO ESTILO "TODOS OS PROJETOS" ── #}
+<div style="margin-bottom:1.5rem;">
+
+    {# Cards de métricas de projetos #}
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem;">
+        <div class="stat-card">
+            <div class="num">{{ total_projetos }}</div>
+            <div class="lbl">Total de Projetos</div>
+        </div>
+        <div class="stat-card" style="border-left-color:#d97706;">
+            <div class="num" style="color:#d97706;">{{ projetos_enviados + projetos_em_aval }}</div>
+            <div class="lbl">Aguardando Avaliação</div>
+        </div>
+        <div class="stat-card" style="border-left-color:#16a34a;">
+            <div class="num" style="color:#16a34a;">{{ projetos_avaliados }}</div>
+            <div class="lbl">Avaliados</div>
+        </div>
+    </div>
+
+    {# Bloco de filtros #}
+    <div class="card" style="margin-bottom:1rem;">
+        <div class="card-body">
+            <div style="font-weight:700; font-size:.9rem; color:var(--azul); margin-bottom:1rem;">🔍 Filtros</div>
+            <form method="GET" action="{{ url_for('admin.dashboard') }}" id="form-filtro-proj">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:1rem; align-items:end;">
+                    <div>
+                        <label style="font-size:.8rem; font-weight:600; color:var(--azul); margin-bottom:.3rem; display:block;">Turma</label>
+                        <select name="turma" style="width:100%; font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
+                            <option value="">Todas as turmas</option>
+                            {% for t in turmas %}
+                            <option value="{{ t }}" {{ 'selected' if filtro_turma == t }}>{{ t }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:.8rem; font-weight:600; color:var(--azul); margin-bottom:.3rem; display:block;">Turno</label>
+                        <select name="turno" style="width:100%; font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
+                            <option value="">Todos os turnos</option>
+                            <option value="manha"  {{ 'selected' if filtro_turno == 'manha' }}>Manhã</option>
+                            <option value="tarde"  {{ 'selected' if filtro_turno == 'tarde' }}>Tarde</option>
+                            <option value="noite"  {{ 'selected' if filtro_turno == 'noite' }}>Noite</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:.8rem; font-weight:600; color:var(--azul); margin-bottom:.3rem; display:block;">Status</label>
+                        <select name="status" style="width:100%; font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
+                            <option value="">Todos os status</option>
+                            <option value="enviado"      {{ 'selected' if filtro_status == 'enviado' }}>Enviado</option>
+                            <option value="em_avaliacao" {{ 'selected' if filtro_status == 'em_avaliacao' }}>Em Avaliação</option>
+                            <option value="avaliado"     {{ 'selected' if filtro_status == 'avaliado' }}>Avaliado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                    </div>
+                </div>
+                {# Busca por texto — linha extra #}
+                <div style="margin-top:.75rem; display:flex; gap:.75rem; align-items:center;">
+                    <input type="text" name="q" value="{{ filtro_busca }}" placeholder="🔍 Buscar título, aluno..."
+                           style="flex:1; font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
+                    {% if filtro_turma or filtro_turno or filtro_status or filtro_busca %}
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline" style="white-space:nowrap;">✕ Limpar</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {# Tabela de projetos #}
+    <div class="card">
+        <div class="card-header">
+            <h2>📁 Projetos ({{ projetos | length }})</h2>
+        </div>
+
+        {% if filtro_turma or filtro_turno or filtro_status or filtro_busca %}
+        <div style="padding:.5rem 1.25rem; display:flex; gap:.5rem; flex-wrap:wrap; font-size:.78rem; border-bottom:1px solid var(--cinza-b);">
+            <span style="color:#6b7280;">Filtrando por:</span>
+            {% if filtro_busca %}<span style="background:#f3e8ff; color:#6d28d9; padding:2px 10px; border-radius:20px; font-weight:600;">Busca: "{{ filtro_busca }}"</span>{% endif %}
+            {% if filtro_turma %}<span style="background:#e0e7ff; color:#3730a3; padding:2px 10px; border-radius:20px; font-weight:600;">Turma: {{ filtro_turma }}</span>{% endif %}
+            {% if filtro_turno %}<span style="background:#fef3c7; color:#92400e; padding:2px 10px; border-radius:20px; font-weight:600;">Turno: {{ {'manha':'Manhã','tarde':'Tarde','noite':'Noite'}[filtro_turno] }}</span>{% endif %}
+            {% if filtro_status %}<span style="background:#dcfce7; color:#15803d; padding:2px 10px; border-radius:20px; font-weight:600;">Status: {{ filtro_status.replace('_',' ').title() }}</span>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if projetos %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Título</th>
+                        <th>Aluno / Turma</th>
+                        <th>Tecnologias</th>
+                        <th>Status</th>
+                        <th>Data</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in projetos %}
+                    <tr>
+                        <td style="color:#9ca3af; font-size:.75rem; font-family:monospace;">{{ '%03d' % p.id }}</td>
+                        <td>
+                            <strong>{{ p.titulo }}</strong>
+                            {% if p.link_github %}
+                            <br><a href="{{ p.link_github }}" target="_blank" style="font-size:.75rem; color:#0369a1;">🔗 GitHub</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong style="font-size:.875rem;">{{ p.aluno.nome }}</strong>
+                            <br>
+                            <span style="font-size:.75rem; color:#6b7280;">
+                                {% if p.aluno.turma %}
+                                <span style="background:#e0e7ff; color:#3730a3; padding:1px 7px; border-radius:20px; font-size:.7rem; font-weight:600; margin-right:.3rem;">{{ p.aluno.turma }}</span>
+                                {% endif %}
+                                {% if p.aluno.turno %}
+                                <span style="background:#fef3c7; color:#92400e; padding:1px 7px; border-radius:20px; font-size:.7rem; font-weight:600;">{{ p.aluno.turno_display }}</span>
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td style="font-size:.8rem; color:#6b7280;">{{ p.tecnologias or '—' }}</td>
+                        <td><span class="status status-{{ p.status }}">{{ p.status.replace('_', ' ') }}</span></td>
+                        <td style="font-size:.78rem; color:#9ca3af;">{{ p.criado_em.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <div style="display:flex; gap:.4rem; flex-wrap:wrap;">
+                                <a href="{{ url_for('projetos.ver_projeto', id=p.id) }}" class="btn btn-outline btn-sm">Ver</a>
+                                <a href="{{ url_for('projetos.avaliar_projeto', id=p.id) }}" class="btn btn-laranja btn-sm">Avaliar</a>
+                                <form method="POST" action="{{ url_for('projetos.excluir_projeto', id=p.id) }}"
+                                      onsubmit="return confirm('Excluir o projeto \'{{ p.titulo }}\'? Esta ação não pode ser desfeita.');"
+                                      style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="icon">📂</div>
+            <h3>Nenhum projeto encontrado</h3>
+            {% if filtro_turma or filtro_turno or filtro_status or filtro_busca %}
+            <p>Nenhum projeto corresponde aos filtros selecionados.</p>
+            {% else %}
+            <p>Ainda não há projetos submetidos na plataforma.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{# ── TABELA DE USUÁRIOS ── #}
 <div class="card">
-    <div class="card-header">
-        <h2>👥 Usuários ({{ usuarios | length }})</h2>
+    <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
+        <h2>👥 Usuários (<span id="count-header">{{ usuarios | length }}</span>)</h2>
+        <div style="display:flex; gap:.75rem; flex-wrap:wrap;">
+            <select id="f-perfil" onchange="filtrarUsuarios()" style="font-size:.8rem; padding:.3rem .6rem; border:1px solid var(--cinza-b); border-radius:6px;">
+                <option value="">Todos os perfis</option>
+                <option value="aluno">Aluno</option>
+                <option value="professor">Professor</option>
+                <option value="admin">Admin</option>
+            </select>
+            <select id="f-turma" onchange="filtrarUsuarios()" style="font-size:.8rem; padding:.3rem .6rem; border:1px solid var(--cinza-b); border-radius:6px;">
+                <option value="">Todas as turmas</option>
+                {% for t in turmas %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+            </select>
+            <select id="f-turno" onchange="filtrarUsuarios()" style="font-size:.8rem; padding:.3rem .6rem; border:1px solid var(--cinza-b); border-radius:6px;">
+                <option value="">Todos os turnos</option>
+                <option value="manha">Manhã</option>
+                <option value="tarde">Tarde</option>
+                <option value="noite">Noite</option>
+            </select>
+        </div>
     </div>
     {% if usuarios %}
     <div class="table-wrap">
-        <table>
+        <table id="tabela-usuarios">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Nome</th>
-                    <th>E-mail</th>
-                    <th>Perfil</th>
-                    <th>Turma</th>
-                    <th>Cadastrado em</th>
-                    <th>Ações</th>
+                    <th>#</th><th>Nome</th><th>E-mail</th><th>Perfil</th>
+                    <th>Turma</th><th>Turno</th><th>Cadastrado em</th><th>Ações</th>
                 </tr>
             </thead>
             <tbody>
                 {% for u in usuarios %}
-                <tr>
-                    <td style="color:#9ca3af; font-size:.75rem; font-family:monospace;">{{ '%03d' % u.id }}</td>
+                <tr data-perfil="{{ u.perfil }}" data-turma="{{ u.turma or '' }}" data-turno="{{ u.turno or '' }}">
+                    <td style="color:#9ca3af;font-size:.75rem;font-family:monospace;">{{ '%03d' % u.id }}</td>
                     <td><strong>{{ u.nome }}</strong></td>
                     <td style="font-size:.85rem;">{{ u.email }}</td>
                     <td>
-                        <span class="badge-perfil" style="
-                            background: {{ '#1a2f6e' if u.perfil == 'admin' else ('#f07621' if u.perfil == 'professor' else '#16a34a') }};
-                            color:#fff; font-size:.65rem; font-weight:700; padding:2px 8px;
-                            border-radius:20px; text-transform:uppercase; letter-spacing:.05em;
-                        ">{{ u.perfil }}</span>
+                        <span style="background:{{ '#1a2f6e' if u.perfil=='admin' else ('#f07621' if u.perfil=='professor' else '#16a34a') }};
+                                     color:#fff;font-size:.65rem;font-weight:700;padding:2px 8px;
+                                     border-radius:20px;text-transform:uppercase;letter-spacing:.05em;">
+                            {{ u.perfil }}
+                        </span>
                     </td>
-                    <td style="font-size:.85rem; color:#6b7280;">{{ u.turma or '—' }}</td>
-                    <td style="font-size:.78rem; color:#9ca3af;">{{ u.criado_em.strftime('%d/%m/%Y') }}</td>
+                    <td>{% if u.turma %}<span style="background:#e0e7ff;color:#3730a3;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:600;">{{ u.turma }}</span>{% else %}—{% endif %}</td>
+                    <td>{% if u.turno %}<span style="background:#fef3c7;color:#92400e;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:600;">{{ u.turno_display }}</span>{% else %}—{% endif %}</td>
+                    <td style="font-size:.78rem;color:#9ca3af;">{{ u.criado_em.strftime('%d/%m/%Y') }}</td>
                     <td>
-                        <div style="display:flex; gap:.4rem;">
+                        <div style="display:flex;gap:.4rem;">
                             <a href="{{ url_for('admin.editar_usuario', id=u.id) }}" class="btn btn-primary btn-sm">Editar</a>
                             {% if u.id != current_user.id %}
                             <form method="POST" action="{{ url_for('admin.excluir_usuario', id=u.id) }}"
-                                  onsubmit="return confirm('Excluir o usuário {{ u.nome }}?');" style="display:inline;">
+                                  onsubmit="return confirm('Excluir {{ u.nome }}?');" style="display:inline;">
                                 <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
                             </form>
                             {% endif %}
@@ -74,12 +390,23 @@
             </tbody>
         </table>
     </div>
-    {% else %}
-    <div class="empty-state">
-        <div class="icon">👤</div>
-        <h3>Nenhum usuário cadastrado</h3>
-        <p>Clique em <strong>Cadastrar Usuário</strong> para começar.</p>
-    </div>
     {% endif %}
 </div>
+
+<script>
+function filtrarUsuarios() {
+    const perfil = document.getElementById('f-perfil').value;
+    const turma  = document.getElementById('f-turma').value;
+    const turno  = document.getElementById('f-turno').value;
+    let visible  = 0;
+    document.querySelectorAll('#tabela-usuarios tbody tr').forEach(row => {
+        const show = (!perfil || row.dataset.perfil === perfil)
+                  && (!turma  || row.dataset.turma  === turma)
+                  && (!turno  || row.dataset.turno  === turno);
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+    document.getElementById('count-header').textContent = visible;
+}
+</script>
 {% endblock %}

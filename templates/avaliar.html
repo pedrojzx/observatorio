@@ -2,61 +2,259 @@
 {% block title %}Avaliar — {{ projeto.titulo }}{% endblock %}
 
 {% block content %}
+<style>
+    .rubrica-card {
+        background: #fff;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .rubrica-header {
+        background: var(--azul);
+        color: #fff;
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .rubrica-header h2 { font-size: 1rem; font-weight: 700; }
+    .rubrica-header small { font-size: .78rem; opacity: .8; }
+    .criterio-row {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 1rem;
+        padding: .9rem 1.5rem;
+        border-bottom: 1px solid var(--cinza-b);
+        transition: background .15s;
+    }
+    .criterio-row:hover { background: #f8f9ff; }
+    .criterio-row:last-child { border-bottom: none; }
+    .criterio-nome { font-size: .875rem; font-weight: 600; color: var(--azul); }
+    .criterio-desc { font-size: .78rem; color: var(--cinza); margin-top: .15rem; }
+    .criterio-peso {
+        background: #e0e7ff;
+        color: #3730a3;
+        font-size: .72rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+    .criterio-input {
+        width: 80px !important;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1rem !important;
+        color: var(--azul) !important;
+    }
+    .nota-final-box {
+        background: linear-gradient(135deg, var(--azul), var(--azul-mid));
+        color: #fff;
+        border-radius: var(--radius);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+    .nota-final-box .label { font-size: .85rem; opacity: .85; }
+    .nota-final-box .num   { font-size: 2.5rem; font-weight: 800; }
+    .stars { display: flex; gap: 3px; margin-top: .25rem; }
+    .star  { width: 14px; height: 14px; border-radius: 2px; background: rgba(255,255,255,.3); }
+    .star.on { background: var(--laranja); }
+</style>
+
 <div class="page-header">
     <div>
         <h1>Avaliar Projeto</h1>
-        <p>{{ projeto.titulo }} — {{ projeto.aluno.nome }}</p>
+        <p>{{ projeto.titulo }} — <strong>{{ projeto.aluno.nome }}</strong>
+           {% if projeto.aluno.turma %}· Turma {{ projeto.aluno.turma }}{% endif %}</p>
     </div>
-    <a href="{{ url_for('projetos.painel') }}" class="btn btn-outline">← Voltar</a>
+    <a href="{{ url_for('admin.dashboard') if current_user.perfil == 'admin' else url_for('projetos.painel') }}" class="btn btn-outline">← Voltar</a>
 </div>
 
 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+
     <!-- Resumo do projeto -->
     <div class="card">
         <div class="card-header"><h2>📋 Projeto</h2></div>
         <div class="card-body">
-            <h3 style="font-size:1.1rem; color:#1a2f6e; margin-bottom:.5rem;">{{ projeto.titulo }}</h3>
+            <h3 style="font-size:1rem; color:#1a2f6e; margin-bottom:.5rem;">{{ projeto.titulo }}</h3>
             <p style="font-size:.875rem; color:#374151; line-height:1.7; margin-bottom:1rem;">{{ projeto.descricao }}</p>
             {% if projeto.tecnologias %}
-            <div style="font-size:.8rem; color:#6b7280;">
+            <div style="font-size:.8rem; color:#6b7280; margin-bottom:.5rem;">
                 <strong>Tecnologias:</strong> {{ projeto.tecnologias }}
             </div>
             {% endif %}
+            {% if projeto.participantes %}
+            <div style="margin-top:.5rem; margin-bottom:.5rem;">
+                <div style="font-size:.75rem; font-weight:700; color:var(--azul); margin-bottom:.3rem;">👥 Participantes</div>
+                {% for nome in projeto.participantes.split(',') %}
+                <div style="font-size:.82rem; color:#374151;">• {{ nome.strip() }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% if projeto.link_github %}
-            <div style="margin-top:.5rem;">
-                <a href="{{ projeto.link_github }}" target="_blank" style="font-size:.82rem; color:#0369a1;">🔗 Ver Repositório</a>
+            <a href="{{ projeto.link_github }}" target="_blank" style="font-size:.82rem; color:#0369a1;">🔗 Ver Repositório</a>
+            {% endif %}
+            {% if projeto.arquivo %}
+            <div style="margin-top:.75rem;">
+                <a href="{{ url_for('projetos.download_arquivo', filename=projeto.arquivo) }}"
+                   target="_blank"
+                   style="display:inline-flex; align-items:center; gap:.4rem; font-size:.82rem;
+                          background:#1a2f6e; color:#fff; padding:.45rem .9rem; border-radius:8px;
+                          text-decoration:none; font-weight:600; transition:background .2s;"
+                   onmouseover="this.style.background='#2a4494'"
+                   onmouseout="this.style.background='#1a2f6e'">
+                    📎 Baixar Arquivo Entregue
+                </a>
             </div>
             {% endif %}
         </div>
     </div>
 
-    <!-- Form de avaliação -->
-    <div class="card">
-        <div class="card-header"><h2>⭐ Avaliação</h2></div>
-        <div class="card-body">
-            {% if projeto.avaliacao %}
-            <div style="background:#fef3c7; border-radius:8px; padding:.75rem 1rem; font-size:.82rem; color:#92400e; margin-bottom:1rem;">
-                ⚠️ Este projeto já foi avaliado. Você pode alterar a avaliação abaixo.
-            </div>
-            {% endif %}
-
-            <form method="POST">
-                <div class="form-group">
-                    <label for="nota">Nota (0 a 10) *</label>
-                    <input type="number" id="nota" name="nota" min="0" max="10" step="0.5"
-                           value="{{ projeto.avaliacao.nota if projeto.avaliacao else '' }}"
-                           placeholder="Ex.: 8.5" required>
-                </div>
-                <div class="form-group">
-                    <label for="comentario">Comentário / Feedback</label>
-                    <textarea id="comentario" name="comentario" rows="6"
-                              placeholder="Descreva os pontos positivos, pontos a melhorar e observações gerais sobre o projeto...">{{ projeto.avaliacao.comentario if projeto.avaliacao else '' }}</textarea>
-                </div>
-                <button type="submit" class="btn btn-laranja" style="width:100%;">
-                    ✅ {{ "Salvar Avaliação" if not projeto.avaliacao else "Atualizar Avaliação" }}
-                </button>
-            </form>
+    <!-- Form de avaliação com rubrica -->
+    <div>
+        {% if projeto.avaliacao %}
+        <div style="background:#fef3c7; border-radius:8px; padding:.75rem 1rem; font-size:.82rem; color:#92400e; margin-bottom:1rem;">
+            ⚠️ Projeto já avaliado por <strong>{{ projeto.avaliacao.professor.nome }}</strong>. Você pode alterar abaixo.
         </div>
+        {% endif %}
+
+        <form method="POST" id="formAvaliacao">
+
+            <!-- RUBRICA -->
+            <div class="rubrica-card">
+                <div class="rubrica-header">
+                    <div>
+                        <h2>📊 Rubrica de Avaliação</h2>
+                        <small>Preencha cada critério de 0 a 10</small>
+                    </div>
+                    <small>Nota ponderada automática</small>
+                </div>
+
+                <div class="criterio-row">
+                    <div>
+                        <div class="criterio-nome">⚙️ Funcionalidade</div>
+                        <div class="criterio-desc">O sistema funciona conforme os requisitos? Todas as features foram entregues?</div>
+                    </div>
+                    <span class="criterio-peso">Peso 30%</span>
+                    <input type="number" class="criterio-input rubrica-field" id="nota_funcionalidade"
+                           name="nota_funcionalidade" min="0" max="10" step="0.5"
+                           value="{{ projeto.avaliacao.nota_funcionalidade if projeto.avaliacao and projeto.avaliacao.nota_funcionalidade is not none else '' }}"
+                           placeholder="0–10" required>
+                </div>
+
+                <div class="criterio-row">
+                    <div>
+                        <div class="criterio-nome">💻 Qualidade do Código</div>
+                        <div class="criterio-desc">Organização, legibilidade, boas práticas, uso de padrões (MVC, etc)?</div>
+                    </div>
+                    <span class="criterio-peso">Peso 25%</span>
+                    <input type="number" class="criterio-input rubrica-field" id="nota_codigo"
+                           name="nota_codigo" min="0" max="10" step="0.5"
+                           value="{{ projeto.avaliacao.nota_codigo if projeto.avaliacao and projeto.avaliacao.nota_codigo is not none else '' }}"
+                           placeholder="0–10" required>
+                </div>
+
+                <div class="criterio-row">
+                    <div>
+                        <div class="criterio-nome">📄 Documentação</div>
+                        <div class="criterio-desc">README, requisitos, comentários no código, instruções de execução?</div>
+                    </div>
+                    <span class="criterio-peso">Peso 20%</span>
+                    <input type="number" class="criterio-input rubrica-field" id="nota_documentacao"
+                           name="nota_documentacao" min="0" max="10" step="0.5"
+                           value="{{ projeto.avaliacao.nota_documentacao if projeto.avaliacao and projeto.avaliacao.nota_documentacao is not none else '' }}"
+                           placeholder="0–10" required>
+                </div>
+
+                <div class="criterio-row">
+                    <div>
+                        <div class="criterio-nome">🎨 Interface / UX</div>
+                        <div class="criterio-desc">A interface é intuitiva, responsiva e visualmente adequada?</div>
+                    </div>
+                    <span class="criterio-peso">Peso 15%</span>
+                    <input type="number" class="criterio-input rubrica-field" id="nota_interface"
+                           name="nota_interface" min="0" max="10" step="0.5"
+                           value="{{ projeto.avaliacao.nota_interface if projeto.avaliacao and projeto.avaliacao.nota_interface is not none else '' }}"
+                           placeholder="0–10" required>
+                </div>
+
+                <div class="criterio-row">
+                    <div>
+                        <div class="criterio-nome">🎤 Apresentação</div>
+                        <div class="criterio-desc">O grupo soube apresentar e defender o projeto com clareza?</div>
+                    </div>
+                    <span class="criterio-peso">Peso 10%</span>
+                    <input type="number" class="criterio-input rubrica-field" id="nota_apresentacao"
+                           name="nota_apresentacao" min="0" max="10" step="0.5"
+                           value="{{ projeto.avaliacao.nota_apresentacao if projeto.avaliacao and projeto.avaliacao.nota_apresentacao is not none else '' }}"
+                           placeholder="0–10" required>
+                </div>
+            </div>
+
+            <!-- Nota final calculada -->
+            <div class="nota-final-box">
+                <div>
+                    <div class="label">Nota Final Calculada (ponderada)</div>
+                    <div class="num" id="nota-display">—</div>
+                    <div class="stars" id="stars-display"></div>
+                </div>
+                <div style="text-align:right; font-size:.82rem; opacity:.75; max-width:160px; line-height:1.6;">
+                    Calculada automaticamente<br>pelos pesos da rubrica
+                </div>
+            </div>
+
+            <input type="hidden" name="nota" id="nota-hidden" value="{{ projeto.avaliacao.nota if projeto.avaliacao else '' }}">
+
+            <div class="form-group">
+                <label for="comentario">💬 Feedback Geral</label>
+                <textarea id="comentario" name="comentario" rows="5"
+                          placeholder="Descreva pontos positivos, pontos a melhorar e observações gerais...">{{ projeto.avaliacao.comentario if projeto.avaliacao else '' }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-laranja" style="width:100%; font-size:1rem; padding:.75rem;">
+                ✅ {{ "Salvar Avaliação" if not projeto.avaliacao else "Atualizar Avaliação" }}
+            </button>
+        </form>
     </div>
 </div>
+
+<script>
+const pesos = { funcionalidade: 0.30, codigo: 0.25, documentacao: 0.20, interface: 0.15, apresentacao: 0.10 };
+const campos = ['funcionalidade', 'codigo', 'documentacao', 'interface', 'apresentacao'];
+
+function calcularNota() {
+    let total = 0, ok = true;
+    for (const c of campos) {
+        const v = parseFloat(document.getElementById('nota_' + c).value);
+        if (isNaN(v)) { ok = false; break; }
+        total += v * pesos[c];
+    }
+    const display = document.getElementById('nota-display');
+    const hidden  = document.getElementById('nota-hidden');
+    const stars   = document.getElementById('stars-display');
+    if (ok) {
+        const nota = Math.round(total * 10) / 10;
+        display.textContent = nota.toFixed(1);
+        hidden.value = nota;
+        stars.innerHTML = '';
+        for (let i = 1; i <= 10; i++) {
+            const s = document.createElement('div');
+            s.className = 'star' + (i <= nota ? ' on' : '');
+            stars.appendChild(s);
+        }
+    } else {
+        display.textContent = '—';
+        hidden.value = '';
+        stars.innerHTML = '';
+    }
+}
+
+document.querySelectorAll('.rubrica-field').forEach(el => el.addEventListener('input', calcularNota));
+calcularNota();
+</script>
 {% endblock %}

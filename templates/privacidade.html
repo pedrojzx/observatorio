@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+{% block title %}Política de Privacidade{% endblock %}
+
+{% block content %}
+<style>
+    .priv-hero {
+        background: linear-gradient(135deg, var(--azul) 0%, var(--azul-mid) 100%);
+        border-radius: var(--radius);
+        padding: 2.5rem 2rem;
+        margin-bottom: 2rem;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    .priv-hero-icon {
+        font-size: 3rem;
+        flex-shrink: 0;
+    }
+    .priv-hero h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: .35rem; }
+    .priv-hero p  { font-size: .9rem; opacity: .85; }
+    .priv-badge {
+        display: inline-block;
+        background: rgba(255,255,255,.15);
+        border: 1px solid rgba(255,255,255,.3);
+        color: #fff;
+        font-size: .72rem;
+        font-weight: 700;
+        padding: 3px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: .75rem;
+    }
+
+    .priv-section {
+        background: #fff;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 1.25rem;
+        overflow: hidden;
+    }
+    .priv-section-header {
+        background: var(--cinza-l);
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        border-bottom: 1px solid var(--cinza-b);
+    }
+    .priv-section-header .num {
+        background: var(--azul);
+        color: #fff;
+        font-size: .72rem;
+        font-weight: 700;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .priv-section-header h2 {
+        font-size: .95rem;
+        font-weight: 700;
+        color: var(--azul);
+    }
+    .priv-body {
+        padding: 1.25rem 1.5rem;
+        font-size: .875rem;
+        color: #374151;
+        line-height: 1.75;
+    }
+    .priv-body p { margin-bottom: .75rem; }
+    .priv-body p:last-child { margin-bottom: 0; }
+    .priv-body ul {
+        list-style: none;
+        padding: 0;
+        margin: .5rem 0;
+    }
+    .priv-body ul li {
+        display: flex;
+        align-items: flex-start;
+        gap: .6rem;
+        margin-bottom: .5rem;
+        font-size: .875rem;
+    }
+    .priv-body ul li::before {
+        content: '✓';
+        color: var(--success);
+        font-weight: 700;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+    .priv-body ul.list-x li::before { content: '✗'; color: var(--danger); }
+    .priv-body ul.list-dot li::before { content: '•'; color: var(--azul); }
+
+    .priv-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: .84rem;
+        margin: .75rem 0;
+    }
+    .priv-table th {
+        background: var(--azul);
+        color: #fff;
+        padding: .65rem 1rem;
+        text-align: left;
+        font-size: .78rem;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+    .priv-table td {
+        padding: .65rem 1rem;
+        border-bottom: 1px solid var(--cinza-b);
+        vertical-align: top;
+    }
+    .priv-table tr:last-child td { border-bottom: none; }
+    .priv-table tr:hover td { background: #f8f9ff; }
+
+    .priv-highlight {
+        background: #fffbeb;
+        border-left: 4px solid var(--warning);
+        border-radius: 0 8px 8px 0;
+        padding: .85rem 1.25rem;
+        font-size: .875rem;
+        color: #78350f;
+        margin: .75rem 0;
+    }
+    .priv-highlight strong { color: #92400e; }
+
+    .priv-info {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        border-radius: 0 8px 8px 0;
+        padding: .85rem 1.25rem;
+        font-size: .875rem;
+        color: #1e40af;
+        margin: .75rem 0;
+    }
+
+    .priv-contact {
+        background: var(--azul);
+        border-radius: var(--radius);
+        padding: 1.75rem 2rem;
+        color: #fff;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .priv-contact h3 { font-size: 1rem; font-weight: 700; margin-bottom: .75rem; }
+    .priv-contact p  { font-size: .85rem; opacity: .85; margin-bottom: .4rem; }
+    .priv-contact a  { color: var(--laranja-l); }
+
+    .priv-footer-note {
+        text-align: center;
+        font-size: .8rem;
+        color: var(--cinza);
+        padding: 1rem;
+    }
+
+    @media (max-width: 640px) {
+        .priv-contact { grid-template-columns: 1fr; }
+        .priv-hero { flex-direction: column; text-align: center; }
+    }
+</style>
+
+{# ── HERO ── #}
+<div class="priv-hero">
+    <div class="priv-hero-icon">🔒</div>
+    <div>
+        <span class="priv-badge">LGPD — Lei nº 13.709/2018</span>
+        <h1>Política de Privacidade</h1>
+        <p>Observatório de Projetos Integradores — Senac Fecomércio · ADS 2º Módulo<br>
+           Última atualização: 2025 &nbsp;|&nbsp; Versão 1.0</p>
+    </div>
+</div>
+
+{# ── AVISO LGPD ── #}
+<div class="priv-highlight">
+    <strong>⚖️ Conformidade com a LGPD:</strong> Esta plataforma é desenvolvida em conformidade com a
+    <strong>Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018)</strong>, que regula o tratamento
+    de dados pessoais no Brasil. Todos os dados coletados têm finalidade legítima, necessária e informada.
+</div>
+
+{# ── SEÇÃO 1 ── #}
+<div class="priv-section">
+    <div class="priv-section-header">
+        <div class="num">1</div>
+        <h2>Quem somos — Controlador dos dados</h2>
+    </div>
+    <div class="priv-body">
+        <p>O <strong>Observatório de Projetos Integradores</strong> é um sistema acadêmico desenvolvido
+        pelos alunos do curso de <strong>Análise e Desenvolvimento de Sistemas (ADS)</strong> do
+        <strong>Senac Fecomércio</strong> como Projeto Integrador do 2º Módulo.</p>
+        <p>O controlador dos dados pessoais tratados nesta plataforma é a instituição
+        <strong>Senac Fecomércio</strong>, representada pela coordenação do curso de ADS.</p>
+        <div class="priv-info">
+            <strong>Base legal (LGPD, art. 7º, II e IV):</strong> O tratamento de dados ocorre para
+            cumprimento de obrigação legal/contratual (matrícula no curso) e no legítimo interesse da
+            instituição em gerenciar o processo acadêmico dos Projetos Integradores.
+        </div>
+    </div>
+</div>
+
+{# ── SEÇÃO 2 ── #}
+<div class="priv-section">
+    <div class="priv-section-header">
+        <div class="num">2</div>
+        <h2>Quais dados coletamos</h2>
+    </div>
+    <div class="priv-body">
+        <p>Coletamos <strong>apenas os dados estritamente necessários</strong> para o funcionamento da
+        plataforma (princípio da minimização, art. 6º, III da LGPD):</p>
+
+        <table class="priv-table">
+            <thead>
+                <tr><th>Dado Coletado</th><th>Finalidade</th><th>Obrigatório?</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Nome completo</strong></td><td>Identificação do usuário na plataforma</td><td>✅ Sim</td></tr>
+                <tr><td><strong>E-mail institucional</strong></td><td>Login e comunicação</td><td>✅ Sim</td></tr>
+                <tr><td><strong>Senha (hash)</strong></td><td>Autenticação segura — nunca armazenada em texto</td><td>✅ Sim</td></tr>
+                <tr><td><strong>Perfil de acesso</strong></td><td>Controle de permissões (aluno/professor/admin)</td><td>✅ Sim</td></tr>
+                <tr><td><strong>Turma e turno</strong></td><td>Organização acadêmica e filtros</td><td>⬜ Opcional</td></tr>
+                <tr><td><strong>Título e descrição do projeto</strong></td><td>Avaliação e consulta do PI</td><td>✅ Sim (alunos)</td></tr>
+                <tr><td><strong>Arquivos enviados</strong></td><td>Documentação do projeto para avaliação</td><td>⬜ Opcional</td></tr>
+                <tr><td><strong>Link do GitHub</strong></td><td>Acesso ao repositório do projeto</td><td>⬜ Opcional</td></tr>
+                <tr><td><strong>Data/hora de criação</strong></td><td>Rastreabilidade e auditoria interna</td><td>✅ Automático</td></tr>
+            </tbody>
+        </table>
+
+        <p><strong>Não coletamos:</strong></p>
+        <ul class="list-x">
+            <li>CPF, RG ou qualquer documento de identificação</li>
+            <li>Dados de localização ou geolocalização</li>
+            <li>Dados de saúde ou biométricos</li>
+            <li>Dados de redes sociais</li>
+            <li>Informações de pagamento ou financeiras</li>
+        </ul>
+    </div>
+</div>
+
+{# ── SEÇÃO 3 ── #}
+<div class="priv-section">
+    <div class="priv-section-header">
+        <div class="num">3</div>
+        <h2>Como usamos os dados</h2>
+    </div>
+    <div class="priv-body">
+        <p>Os dados coletados são utilizados <strong>exclusivamente</strong> para as seguintes finalidades:</p>
+        <ul>
+            <li>Autenticação e controle de acesso à plataforma</li>
+            <li>Submissão, avaliação e consulta dos Projetos Integradores</li>
+            <li>Organização dos projetos por turma e turno para professores e coordenadores</li>
+            <li>Geração de métricas acadêmicas internas (total de projetos, projetos avaliados)</li>
+            <li>Identificação dos projetos e seus autores para fins de avaliação</li>
+        </ul>
+        <div class="priv-highlight">
+            <strong>⚠️ Vedação de uso secundário:</strong> Os dados pessoais coletados nesta plataforma
+            <strong>não são compartilhados, vendidos ou cedidos</strong> a terceiros para fins comerciais,
+            de marketing ou qualquer finalidade diferente das listadas acima.
+        </div>
+    </div>
+</div>
+
+{# ── SEÇÃO 4 ── #}
+<div class="priv-section">
+    <div class="priv-section-header">
+        <div class="num">4</div>
+        <h2>Segurança dos dados</h2>
+    </div>
+    <div class="priv-body">
+        <p>Adotamos as seguintes medidas técnicas e organizacionais para proteger seus dados
+        (art. 46 da LGPD):</p>
+        <ul>
+            <li><strong>Senhas em hash seguro:</strong> todas as senhas são armazenadas usando algoritmo de hashing robusto (Werkzeug/PBKDF2) — nunca em texto plano</li>
+            <li><strong>Controle de acesso por perfil:</strong> cada usuário acessa somente o que lhe é permitido (RBAC — Role-Based Access Control), validado no servidor</li>
+            <li><strong>Sanitização de arquivos:</strong> todos os arquivos enviados têm seu nome sanitizado antes de serem armazenados, prevenindo ataques de path traversal</li>
+            <li><strong>Sessões autenticadas:</strong> sessões gerenciadas pelo Flask-Login com chave secreta configurável via variável de ambiente</li>
+            <li><strong>Restrição de formatos:</strong> somente formatos seguros são aceitos no upload (PDF, ZIP, RAR, DOCX, PNG, JPG)</li>
+            <li><strong>Autenticação obrigatória:</strong> todas as rotas que acessam dados pessoais exigem sessão autenticada</li>
+        </ul>
+    </div>
+</div>
+
+{# ── SEÇÃO 5 ── #}
+<div class="priv-section">
+    <div class="priv-section-header">
+        <div class="num">5</div>
+        <h2>Seus direitos como titular dos dados</h2>
+    </div>
+    <div class="priv-body">
+        <p>A LGPD garante a você, como titular dos dados pessoais, os seguintes direitos (art. 18):</p>
+
+        <table class="priv-table">
+            <thead>
+                <tr><th>Direito</th><th>Como exercer</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Confirmação de tratamento</strong></td>
+                    <td>Confirmamos: seus dados são tratados para as finalidades descritas nesta política</td>
+                </tr>
+                <tr>
+                    <td><strong>Acesso aos dados</strong></td>
+                    <td>Contate a coordenação do curso ou o administrador do sistema</td>
+                </tr>
+                <tr>
+                    <td><strong>Correção de dados incompletos ou incorretos</strong></td>
+                    <td>Solicite atualização via painel do sistema ou diretamente à coordenação</td>
+                </tr>
+                <tr>
+                    <td><strong>Eliminação dos dados</strong></td>
+                    <td>Solicite à coordenação a exclusão da conta e dados associados</td>
+                </tr>
+                <tr>
+                    <td><strong>Informação sobre compartilhamento</strong></td>
+                    <td>Não compartilhamos seus dados com terceiros (veja seção 3)</td>
+                </tr>
+                <tr>
+                    <td><strong>Revogação do consentimento</strong></td>
+                    <td>Entre em contato com a coordenação do curso</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# ── SEÇÃO 6 ── #}
+<div class="priv-section">
+    <div class="priv-section-header">
+        <div class="num">6</div>
+        <h2>Retenção e exclusão dos dados</h2>
+    </div>
+    <div class="priv-body">
+        <p>Os dados são mantidos enquanto o usuário possuir vínculo ativo com o curso ou a instituição.
+        Após o encerramento do vínculo:</p>
+        <ul>
+            <li>Contas de usuário sem projetos podem ser excluídas pelo administrador</li>
+            <li>Projetos avaliados fazem parte do histórico acadêmico e podem ser mantidos como portfólio institucional</li>
+            <li>Arquivos enviados ficam armazenados no servidor pelo período de avaliação</li>
+        </ul>
+        <p>Para solicitar a exclusão antecipada de seus dados, entre em contato com a coordenação do curso.</p>
+    </div>
+</div>
+
+{# ── SEÇÃO 7 ── #}
+<div class="priv-section">
+    <div class="priv-section-header">
+        <div class="num">7</div>
+        <h2>Responsabilidade do desenvolvedor</h2>
+    </div>
+    <div class="priv-body">
+        <p>Este sistema foi desenvolvido por alunos do curso de ADS com plena consciência das
+        obrigações éticas e legais envolvidas no tratamento de dados pessoais. Como futuros
+        profissionais de tecnologia, nos comprometemos com:</p>
+        <ul>
+            <li><strong>Privacy by Design:</strong> a privacidade foi considerada desde o início do projeto, não como adição posterior</li>
+            <li><strong>Minimização de dados:</strong> coletamos apenas o necessário para cumprir as finalidades declaradas</li>
+            <li><strong>Transparência:</strong> esta política está disponível a todos os usuários, inclusive sem autenticação</li>
+            <li><strong>Segurança técnica:</strong> implementamos as melhores práticas de segurança acessíveis no escopo do projeto</li>
+            <li><strong>Conformidade legal:</strong> o sistema é desenvolvido em conformidade com a LGPD (Lei nº 13.709/2018)</li>
+        </ul>
+        <div class="priv-info">
+            <strong>📚 Referência legal:</strong> Lei nº 13.709, de 14 de agosto de 2018 — Lei Geral de Proteção de
+            Dados Pessoais (LGPD). Disponível em:
+            <a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm" target="_blank" style="color:#1e40af;">
+                planalto.gov.br/lgpd
+            </a>
+        </div>
+    </div>
+</div>
+
+{# ── SEÇÃO 8 ── #}
+<div class="priv-section">
+    <div class="priv-section-header">
+        <div class="num">8</div>
+        <h2>Cookies e rastreamento</h2>
+    </div>
+    <div class="priv-body">
+        <p>Esta plataforma utiliza <strong>apenas cookies de sessão essenciais</strong>, necessários para
+        manter o usuário autenticado durante a navegação. Esses cookies:</p>
+        <ul>
+            <li>São criados automaticamente pelo Flask-Login no momento do login</li>
+            <li>Expiram ao fechar o navegador ou ao fazer logout</li>
+            <li>Não rastreiam comportamento fora da plataforma</li>
+            <li>Não são cookies de publicidade ou analytics</li>
+        </ul>
+        <p><strong>Não utilizamos</strong> Google Analytics, pixels de rastreamento, cookies de terceiros
+        ou qualquer tecnologia de rastreamento comportamental.</p>
+    </div>
+</div>
+
+{# ── CONTATO ── #}
+<div class="priv-contact">
+    <div>
+        <h3>📬 Encarregado de Proteção de Dados (DPO)</h3>
+        <p>Para exercer seus direitos ou esclarecer dúvidas sobre o tratamento de dados:</p>
+        <p>📧 <a href="mailto:coordenacao.ads@senac.br">coordenacao.ads@senac.br</a></p>
+        <p>🏫 Senac Fecomércio — Coordenação ADS</p>
+    </div>
+    <div>
+        <h3>⚖️ Autoridade Nacional de Proteção de Dados</h3>
+        <p>Caso considere que seus direitos não foram atendidos, você pode contatar a ANPD:</p>
+        <p>🌐 <a href="https://www.gov.br/anpd" target="_blank">gov.br/anpd</a></p>
+        <p>📧 <a href="mailto:anpd@anpd.gov.br">anpd@anpd.gov.br</a></p>
+    </div>
+</div>
+
+<div class="priv-footer-note">
+    Esta Política de Privacidade pode ser atualizada periodicamente. Recomendamos revisão regular.
+    &nbsp;|&nbsp; Versão 1.0 — 2025 &nbsp;|&nbsp; Senac Fecomércio — ADS 2º Módulo
+</div>
+
+{% endblock %}

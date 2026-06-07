@@ -242,26 +242,35 @@
 
 {% if current_user.is_authenticated %}
 <nav>
-    <a class="nav-brand" href="{{ url_for('projetos.painel') }}">
+    <a class="nav-brand" href="{{ url_for('admin.dashboard') if current_user.perfil == 'admin' else (url_for('portfolio.index') if current_user.perfil == 'empresa' else url_for('projetos.painel')) }}">
         <div class="dot"></div>
         <span>Observatório PI</span>
     </a>
     <div class="nav-links">
-        <a href="{{ url_for('projetos.painel') }}">Painel</a>
         {% if current_user.perfil == 'aluno' %}
+            <a href="{{ url_for('projetos.painel') }}">Painel</a>
             <a href="{{ url_for('projetos.novo_projeto') }}">+ Novo Projeto</a>
         {% endif %}
-        {% if current_user.perfil in ('admin', 'professor') %}
-            {% if current_user.perfil == 'admin' %}
-            <a href="{{ url_for('admin.dashboard') }}">Admin</a>
+
+        {% if current_user.perfil == 'professor' %}
+            <a href="{{ url_for('projetos.painel') }}">Painel</a>
+            <a href="{{ url_for('admin.novo_aluno') }}">+ Aluno</a>
+        {% endif %}
+
+        {% if current_user.perfil == 'admin' %}
+            <a href="{{ url_for('admin.dashboard') }}">Painel Admin</a>
             <a href="{{ url_for('admin.novo_usuario') }}">+ Usuário</a>
-            {% endif %}
+        {% endif %}
+
+        <a href="{{ url_for('portfolio.index') }}">Portfólio</a>
+        {% if current_user.perfil != 'empresa' %}
+        <a href="{{ url_for('lgpd.privacidade') }}">Privacidade</a>
         {% endif %}
         <a href="{{ url_for('auth.logout') }}">Sair</a>
     </div>
     <div class="nav-user">
         <strong>{{ current_user.nome.split()[0] }}</strong>
-        <span class="badge-perfil">{{ current_user.perfil }}</span>
+        <span class="badge-perfil" style="{{ 'background:#0369a1' if current_user.perfil == 'empresa' else '' }}">{{ current_user.perfil }}</span>
     </div>
 </nav>
 {% endif %}
@@ -282,6 +291,7 @@
 
 <footer>
     Observatório de Projetos Integradores — Senac Fecomércio &nbsp;|&nbsp; ADS 2º Módulo
+    &nbsp;|&nbsp; <a href="{{ url_for('lgpd.privacidade') }}" style="color:var(--cinza); text-decoration:underline;">Política de Privacidade</a>
 </footer>
 
 </body>

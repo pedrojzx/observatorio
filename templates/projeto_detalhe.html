@@ -8,7 +8,7 @@
         <p>Submetido em {{ projeto.criado_em.strftime('%d/%m/%Y às %H:%M') }} por <strong>{{ projeto.aluno.nome }}</strong></p>
     </div>
     <div style="display:flex; gap:.5rem;">
-        <a href="{{ url_for('projetos.painel') }}" class="btn btn-outline">← Voltar</a>
+        <a href="{{ url_for('admin.dashboard') if current_user.perfil == 'admin' else url_for('projetos.painel') }}" class="btn btn-outline">← Voltar</a>
         {% if current_user.perfil == 'aluno' and projeto.aluno_id == current_user.id %}
         <a href="{{ url_for('projetos.editar_projeto', id=projeto.id) }}" class="btn btn-primary">Editar</a>
         {% endif %}
@@ -75,6 +75,14 @@
                     <div style="font-size:.78rem; color:#9ca3af;">Turma: {{ projeto.aluno.turma }}</div>
                     {% endif %}
                 </div>
+                {% if projeto.participantes %}
+                <div>
+                    <div style="font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#9ca3af; margin-bottom:.4rem;">👥 Participantes</div>
+                    {% for p in projeto.participantes.split(',') %}
+                    <div style="font-size:.82rem; color:#374151; padding:2px 0;">• {{ p.strip() }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 {% if projeto.tecnologias %}
                 <div>
                     <div style="font-size:.72rem; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Tecnologias</div>
@@ -95,7 +103,7 @@
                 {% if projeto.arquivo %}
                 <div>
                     <a href="{{ url_for('projetos.download_arquivo', filename=projeto.arquivo) }}">
-    📥 Baixar arquivo
+     Baixar arquivo
 </a>
                 </div>
                 {% endif %}
