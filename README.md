@@ -187,3 +187,129 @@ O status é atualizado automaticamente: muda para `em_avaliacao` quando um profe
 ---
 
 *Senac Fecomércio Pernambuco · ADS 2º Módulo · 2025/2026*
+
+---
+
+---
+
+# Integrative Projects Observatory *(English)*
+
+Centralized web platform for submission, evaluation and public display of Integrative Projects from the Systems Analysis and Development program — Senac Fecomércio Pernambuco.
+
+---
+
+## Description
+
+The Observatory replaces the decentralized process of email and Teams with a single platform that covers the full lifecycle of Integrative Projects: submission by students, structured evaluation by teachers, and public display of completed projects for visitors and partner companies.
+
+---
+
+## Objective
+
+Create a single platform where:
+- Students submit and manage their projects
+- Teachers evaluate projects using a weighted rubric
+- Coordinators and admins have a full strategic overview and generate reports
+- Partner companies browse completed projects and identify talent
+- Anonymous visitors can access the public portfolio without logging in
+
+---
+
+## Technologies Used
+
+| Technology | Version | Purpose |
+|---|---|---|
+| Python | 3.10+ | Main backend language |
+| Flask | 3.0.3 | Web framework — routes, templates and blueprints |
+| Flask-SQLAlchemy | 3.1.1 | ORM for database abstraction |
+| Flask-Login | 0.6.3 | Session management and authentication |
+| Werkzeug | 3.0.3 | Secure password hashing (PBKDF2) and HTTP utilities |
+| PyMySQL | 1.1.1 | Python to MySQL connector |
+| cryptography | 42.0.8 | Cryptographic support for secure operations |
+| SQLite / MySQL | — | SQLite for development, MySQL for production |
+| HTML5 + CSS3 + JS | — | Frontend without external frameworks |
+| Google Fonts (Sora) | — | Interface typography |
+
+---
+
+## Business Rules
+
+- Only the Administrator/Coordinator can create user accounts
+- Students can only view and manage their own projects
+- Teachers can view and evaluate all projects from all classes
+- A project can only be evaluated by one teacher, but the evaluation can be updated by that same teacher
+- Only the admin can change evaluations made by other teachers
+- Project status flow: `submitted` → `under_review` → `evaluated`
+- File upload allowed: PDF, ZIP, RAR, DOCX, PNG, JPG (max 100MB)
+- GitHub repository link is visible to all user profiles
+- Users with the company profile are redirected to the public portfolio after login
+
+---
+
+## How to Run
+
+### Requirements
+
+- Python 3.10 or higher
+- MySQL 8+ running locally (or use SQLite for quick setup)
+- Git
+
+### Step by Step
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/pedrojzx/observatorio.git
+cd observatorio
+
+# 2. Create and activate the virtual environment
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# Linux / macOS
+source .venv/bin/activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Create the MySQL database
+mysql -u root -p
+CREATE DATABASE observatorio_pi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+exit;
+
+# 5. Set up environment variables by creating a .env file
+SECRET_KEY=your-secret-key-here
+DATABASE_URL=mysql+pymysql://root:YOUR_PASSWORD@localhost/observatorio_pi
+
+# To run with SQLite (no MySQL needed):
+DATABASE_URL=sqlite:///observatorio.db
+
+# 6. Run the server
+python app.py
+```
+
+Access at: http://localhost:5000
+
+### Default admin credentials
+
+| Field | Value |
+|---|---|
+| Email | admin@senac.br |
+| Password | admin123 |
+
+> Change the default credentials immediately after the first login in a production environment.
+
+---
+
+## Documentation
+
+| Document | Description |
+|---|---|
+| [docs/requisitos.md](docs/requisitos.md) | Functional and non-functional requirements, use cases and data model |
+| [docs/pesquisa_tecnologia_sociedade.md](docs/pesquisa_tecnologia_sociedade.md) | Problem definition, methodology and expected results |
+| Privacy Policy | Available on the platform at `/privacidade` (no login required) |
+
+---
+
+*Senac Fecomércio Pernambuco · ADS 2nd Module · 2025/2026*
