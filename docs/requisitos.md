@@ -3,7 +3,7 @@
 **Curso:** Análise e Desenvolvimento de Sistemas — Senac Fecomércio  
 **Módulo:** 2º Módulo  
 **Versão:** 1.0  
-**Data:** 2026  
+**Data:** 2025  
 
 ---
 
@@ -46,6 +46,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 > **Prioridade:** Alta / Média / Baixa
 
 ### 3.1 Módulo de Autenticação
+**Responsável:** Pedro Roberto
 
 | ID | Descrição | Prioridade |
 |---|---|---|
@@ -56,6 +57,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 | RF-005 | O sistema deve exibir mensagem de erro para credenciais inválidas | Média |
 
 ### 3.2 Módulo de Usuários
+**Responsável:** Timóteo Batista
 
 | ID | Descrição | Prioridade |
 |---|---|---|
@@ -68,6 +70,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 | RF-012 | O e-mail deve ser único no sistema | Alta |
 
 ### 3.3 Módulo de Projetos
+**Responsável:** Guilherme Gonçalves
 
 | ID | Descrição | Prioridade |
 |---|---|---|
@@ -82,6 +85,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 | RF-021 | O sistema deve permitir download dos arquivos enviados | Média |
 
 ### 3.4 Módulo de Avaliação
+**Responsável:** Guilherme Gonçalves
 
 | ID | Descrição | Prioridade |
 |---|---|---|
@@ -92,6 +96,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 | RF-026 | O aluno não deve poder avaliar projetos | Alta |
 
 ### 3.5 Módulo Administrativo
+**Responsável:** Timóteo Batista
 
 | ID | Descrição | Prioridade |
 |---|---|---|
@@ -99,7 +104,18 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 | RF-028 | O painel deve exibir lista completa de usuários com filtros por turma | Média |
 | RF-029 | O sistema deve criar automaticamente um usuário admin padrão na primeira execução | Alta |
 
-### 3.6 Módulo de Privacidade
+### 3.6 Módulo de Portfólio Público
+**Responsável:** Taywan Francisco
+
+| ID | Descrição | Prioridade |
+|---|---|---|
+| RF-033 | O sistema deve exibir portfólio público com todos os projetos avaliados | Alta |
+| RF-034 | O portfólio deve ter filtros por busca textual, turma e turno | Média |
+| RF-035 | A página de detalhe do portfólio deve exibir nota, avaliador, tecnologias e GitHub dos integrantes | Alta |
+| RF-036 | O portfólio deve exibir estatísticas gerais (total de projetos, turmas, média geral) | Média |
+
+### 3.7 Módulo de Privacidade
+**Responsável:** Taywan Francisco
 
 | ID | Descrição | Prioridade |
 |---|---|---|
@@ -112,6 +128,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 ## 4. Requisitos Não Funcionais
 
 ### 4.1 Segurança
+**Responsável:** Pedro Roberto / Ivan Roberto
 
 | ID | Descrição |
 |---|---|
@@ -123,6 +140,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 | RNF-006 | O sistema deve estar em conformidade com a LGPD (Lei nº 13.709/2018) |
 
 ### 4.2 Usabilidade
+**Responsável:** Filipe José
 
 | ID | Descrição |
 |---|---|
@@ -132,6 +150,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 | RNF-010 | O sistema deve utilizar tipografia e identidade visual consistente (fonte Sora) |
 
 ### 4.3 Desempenho
+**Responsável:** Ivan Roberto
 
 | ID | Descrição |
 |---|---|
@@ -139,6 +158,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 | RNF-012 | O banco de dados deve suportar múltiplas conexões simultâneas via pool do SQLAlchemy |
 
 ### 4.4 Manutenibilidade
+**Responsável:** Ivan Roberto / Pedro Roberto
 
 | ID | Descrição |
 |---|---|
@@ -148,6 +168,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 | RNF-016 | O repositório deve conter README bilíngue (pt-BR e en) |
 
 ### 4.5 Portabilidade
+**Responsável:** Ivan Roberto
 
 | ID | Descrição |
 |---|---|
@@ -179,6 +200,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 │      └──────────────► (Avaliar Projeto)                          │
 │                                                                  │
 │  [Qualquer perfil]────► (Ver Política de Privacidade)           │
+│  [Público/Empresa]────► (Ver Portfólio de Projetos)             │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -196,9 +218,10 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
 │ senha: String(256)   │  1..n  │ tecnologias: String   │
 │ perfil: Enum         │        │ link_github: String   │
 │ turma: String(50)    │        │ arquivo: String       │
-│ turno: Enum          │        │ status: Enum          │
-│ criado_em: DateTime  │        │ aluno_id: FK          │
-└──────────────────────┘        │ criado_em: DateTime   │
+│ turno: Enum          │        │ participantes: Text   │
+│ criado_em: DateTime  │        │ status: Enum          │
+└──────────────────────┘        │ aluno_id: FK          │
+                                │ criado_em: DateTime   │
                                 └──────────┬───────────┘
                                            │ 1..1
                                 ┌──────────▼───────────┐
@@ -206,6 +229,11 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
                                 ├──────────────────────┤
                                 │ id: Integer (PK)      │
                                 │ nota: Float           │
+                                │ nota_funcionalidade   │
+                                │ nota_codigo           │
+                                │ nota_documentacao     │
+                                │ nota_interface        │
+                                │ nota_apresentacao     │
                                 │ comentario: Text      │
                                 │ projeto_id: FK        │
                                 │ professor_id: FK      │
@@ -213,7 +241,7 @@ O sistema é uma plataforma web centralizada que substituirá o processo manual 
                                 └──────────────────────┘
 
 Status do Projeto: enviado → em_avaliacao → avaliado
-Perfis de Usuário: aluno | professor | admin
+Perfis de Usuário: aluno | professor | admin | empresa
 Turnos: manha | tarde | noite
 ```
 
@@ -238,18 +266,72 @@ Turnos: manha | tarde | noite
 
 ---
 
-## 8. Rastreabilidade
+## 8. Rastreabilidade por Requisito e Desenvolvedor
 
-| Requisito | Arquivo de Implementação |
-|---|---|
-| RF-001 a RF-005 | `routes/auth.py` |
-| RF-006 a RF-012 | `routes/admin.py` |
-| RF-013 a RF-021 | `routes/projetos.py` |
-| RF-022 a RF-026 | `routes/projetos.py` (avaliar_projeto) |
-| RF-027 a RF-029 | `routes/admin.py` (dashboard) |
-| RF-030 a RF-032 | `routes/lgpd.py` |
-| RNF-001 a RNF-006 | `models.py`, `config.py`, `routes/` |
-| Modelo de Dados | `models.py` |
+| Requisito | Arquivo de Implementação | Desenvolvedor |
+|---|---|---|
+| RF-001 a RF-005 | `routes/auth.py` | **Pedro Roberto** |
+| RF-006 a RF-012 | `routes/admin.py` | **Timóteo Batista** |
+| RF-013 a RF-021 | `routes/projetos.py`, `templates/projeto_form.html`, `templates/projeto_detalhe.html` | **Guilherme Gonçalves** |
+| RF-022 a RF-026 | `routes/projetos.py` (avaliar_projeto), `templates/avaliar.html` | **Guilherme Gonçalves** |
+| RF-027 a RF-029 | `routes/admin.py`, `templates/admin/dashboard.html` | **Timóteo Batista** |
+| RF-030 a RF-032 | `routes/lgpd.py`, `templates/privacidade.html` | **Taywan Francisco** |
+| RF-033 a RF-036 | `routes/portfolio.py`, `templates/portfolio.html`, `templates/portfolio_detalhe.html` | **Taywan Francisco** |
+| RNF-001, RNF-003 | `routes/auth.py`, todos os `routes/*.py` | **Pedro Roberto** |
+| RNF-002, RNF-004 | `routes/projetos.py`, `config.py` | **Pedro Roberto** |
+| RNF-005 | `config.py` | **Ivan Roberto** |
+| RNF-006 | `templates/privacidade.html`, `routes/lgpd.py` | **Taywan Francisco** |
+| RNF-007 a RNF-010 | `templates/base.html`, `templates/login.html`, `templates/painel.html` | **Filipe José** |
+| RNF-011 a RNF-012 | `models.py`, `config.py` | **Ivan Roberto** |
+| RNF-013 a RNF-014 | `app.py`, `models.py` | **Ivan Roberto** / **Pedro Roberto** |
+| RNF-015 a RNF-016 | `README.md`, `docs/` | **Filipe José** |
+| RNF-017 a RNF-018 | `requirements.txt`, `config.py` | **Ivan Roberto** |
+| Modelo de Dados | `models.py` | **Ivan Roberto** |
+| Documentação técnica | `docs/requisitos.md`, `README.md` | **Filipe José** |
+
+---
+
+## 9. Distribuição de Responsabilidades por Membro
+
+### 👑 Ivan Roberto — Líder Técnico & Arquiteto do Sistema
+Ivan atuou como **líder e cabeça do projeto**, responsável pelas decisões arquiteturais que estruturam todo o sistema. Orientou os demais membros na implementação de suas partes e garantiu a coesão técnica do projeto como um todo.
+
+- `models.py` — modelos `Usuario`, `Projeto`, `Avaliacao`, relacionamentos ORM, design do banco de dados
+- `config.py` — configuração de banco, `UPLOAD_FOLDER`, `MAX_CONTENT_LENGTH`, suporte SQLite/MySQL
+- `app.py` — função `aplicar_migrations()`, inicialização do SQLAlchemy, estrutura de Blueprints
+- `requirements.txt` — gestão de dependências
+- Coordenação técnica geral do time
+
+### 🔐 Pedro Roberto — Autenticação & Setup da Aplicação
+- `routes/auth.py` — login, logout, proteção de rotas com Flask-Login
+- `app.py` — configuração principal, registro de Blueprints, filtro `from_json`, criação do admin padrão
+
+### 📁 Guilherme Gonçalves — Módulo de Projetos & Avaliação
+- `routes/projetos.py` — submissão, edição, exclusão, download e avaliação com rubrica
+- `templates/projeto_form.html` — formulário de submissão/edição
+- `templates/projeto_detalhe.html` — visualização detalhada do projeto
+- `templates/avaliar.html` — formulário de avaliação com rubrica ponderada
+
+### 🛠️ Timóteo Batista — Painel Administrativo
+- `routes/admin.py` — dashboard, CRUD de usuários, exportação CSV, filtros
+- `templates/admin/dashboard.html` — painel com métricas, gráficos e tabelas
+- `templates/admin/aluno_form.html` — formulário de cadastro de aluno
+- `templates/admin/usuario_form.html` — formulário de cadastro de usuário (admin)
+
+### 🌐 Taywan Francisco — Portfólio Público & LGPD
+- `routes/portfolio.py` — listagem pública de projetos avaliados com filtros
+- `templates/portfolio.html` — página do portfólio com hero e cards
+- `templates/portfolio_detalhe.html` — detalhe público de projeto no portfólio
+- `routes/lgpd.py` — rota da política de privacidade
+- `templates/privacidade.html` — página de Política de Privacidade (LGPD)
+
+### 🎨 Filipe José — Interface, UX & Documentação
+- `templates/base.html` — layout base, navegação, identidade visual, CSS global
+- `templates/login.html` — tela de login
+- `templates/painel.html` — painel do aluno/professor
+- `templates/usuario_form.html` — formulário de perfil de usuário
+- `docs/requisitos.md` — este documento
+- `README.md` — documentação bilíngue do projeto
 
 ---
 

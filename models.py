@@ -1,3 +1,11 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Desenvolvedor: Ivan Roberto — Líder Técnico & Arquiteto do Sistema
+# Módulo: Modelagem de Dados — modelos Usuario, Projeto e Avaliacao
+# Nota: Ivan foi o cabeça do projeto, responsável pela arquitetura geral
+#       e pela orientação técnica dos demais membros da equipe.
+# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025/2026
+# ─────────────────────────────────────────────────────────────────────────────
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime
@@ -37,7 +45,8 @@ class Projeto(db.Model):
     tecnologias  = db.Column(db.String(300))
     link_github  = db.Column(db.String(300))
     arquivo      = db.Column(db.String(300))
-    participantes = db.Column(db.Text)
+    participantes         = db.Column(db.Text)
+    participantes_github  = db.Column(db.Text)   # JSON: [{"nome":"...","github":"..."}]
     status       = db.Column(db.Enum('enviado', 'em_avaliacao', 'avaliado'), default='enviado')
     criado_em    = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

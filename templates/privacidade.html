@@ -1,3 +1,9 @@
+{# ─────────────────────────────────────────────────────────────────────────── #}
+{# Desenvolvedor: Taywan Francisco #}
+{# Template: Política de Privacidade — conformidade LGPD #}
+{# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025   #}
+{# ─────────────────────────────────────────────────────────────────────────── #}
+
 {% extends "base.html" %}
 {% block title %}Política de Privacidade{% endblock %}
 
@@ -12,6 +18,14 @@
         display: flex;
         align-items: center;
         gap: 1.5rem;
+        border-bottom: 4px solid var(--laranja);
+        position: relative; overflow: hidden;
+    }
+    .priv-hero::after {
+        content: ''; position: absolute; top: -60px; right: -60px;
+        width: 220px; height: 220px;
+        border: 35px solid rgba(240,118,33,.2);
+        border-radius: 50%; pointer-events: none;
     }
     .priv-hero-icon {
         font-size: 3rem;
@@ -21,8 +35,8 @@
     .priv-hero p  { font-size: .9rem; opacity: .85; }
     .priv-badge {
         display: inline-block;
-        background: rgba(255,255,255,.15);
-        border: 1px solid rgba(255,255,255,.3);
+        background: var(--laranja);
+        border: 1px solid var(--laranja-d);
         color: #fff;
         font-size: .72rem;
         font-weight: 700;
@@ -36,20 +50,21 @@
     .priv-section {
         background: #fff;
         border-radius: var(--radius);
-        box-shadow: var(--shadow);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border);
         margin-bottom: 1.25rem;
         overflow: hidden;
     }
     .priv-section-header {
-        background: var(--cinza-l);
-        padding: 1rem 1.5rem;
+        background: var(--azul);
+        padding: .9rem 1.5rem;
         display: flex;
         align-items: center;
         gap: .75rem;
-        border-bottom: 1px solid var(--cinza-b);
+        border-bottom: 2px solid var(--laranja);
     }
     .priv-section-header .num {
-        background: var(--azul);
+        background: var(--laranja);
         color: #fff;
         font-size: .72rem;
         font-weight: 700;
@@ -60,11 +75,12 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        border: 2px solid rgba(255,255,255,.3);
     }
     .priv-section-header h2 {
         font-size: .95rem;
         font-weight: 700;
-        color: var(--azul);
+        color: #fff;
     }
     .priv-body {
         padding: 1.25rem 1.5rem;
@@ -88,13 +104,13 @@
     }
     .priv-body ul li::before {
         content: '✓';
-        color: var(--success);
+        color: var(--laranja);
         font-weight: 700;
         flex-shrink: 0;
         margin-top: 1px;
     }
     .priv-body ul.list-x li::before { content: '✗'; color: var(--danger); }
-    .priv-body ul.list-dot li::before { content: '•'; color: var(--azul); }
+    .priv-body ul.list-dot li::before { content: '•'; color: var(--laranja); }
 
     .priv-table {
         width: 100%;
@@ -111,6 +127,7 @@
         font-weight: 600;
         letter-spacing: .04em;
         text-transform: uppercase;
+        border-bottom: 2px solid var(--laranja);
     }
     .priv-table td {
         padding: .65rem 1rem;
@@ -118,18 +135,18 @@
         vertical-align: top;
     }
     .priv-table tr:last-child td { border-bottom: none; }
-    .priv-table tr:hover td { background: #f8f9ff; }
+    .priv-table tr:hover td { background: var(--laranja-l); }
 
     .priv-highlight {
-        background: #fffbeb;
-        border-left: 4px solid var(--warning);
+        background: var(--laranja-l);
+        border-left: 4px solid var(--laranja);
         border-radius: 0 8px 8px 0;
         padding: .85rem 1.25rem;
         font-size: .875rem;
-        color: #78350f;
+        color: #7c3a0a;
         margin: .75rem 0;
     }
-    .priv-highlight strong { color: #92400e; }
+    .priv-highlight strong { color: var(--laranja-d); }
 
     .priv-info {
         background: #eff6ff;
@@ -150,10 +167,12 @@
         grid-template-columns: 1fr 1fr;
         gap: 1.5rem;
         margin-bottom: 2rem;
+        border-top: 4px solid var(--laranja);
+        box-shadow: var(--shadow-sm);
     }
-    .priv-contact h3 { font-size: 1rem; font-weight: 700; margin-bottom: .75rem; }
+    .priv-contact h3 { font-size: 1rem; font-weight: 700; margin-bottom: .75rem; color: var(--laranja); }
     .priv-contact p  { font-size: .85rem; opacity: .85; margin-bottom: .4rem; }
-    .priv-contact a  { color: var(--laranja-l); }
+    .priv-contact a  { color: var(--laranja); font-weight: 600; }
 
     .priv-footer-note {
         text-align: center;

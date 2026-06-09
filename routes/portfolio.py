@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Desenvolvedor: Taywan Francisco
+# Módulo: Portfólio Público — listagem e detalhe de projetos avaliados
+# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025/2026
+# ─────────────────────────────────────────────────────────────────────────────
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 from models import Projeto, Usuario, db
@@ -10,6 +16,7 @@ def index():
     """Portfólio público — sem necessidade de login."""
     filtro_turma = request.args.get('turma', '')
     filtro_turno = request.args.get('turno', '')
+    filtro_aluno = request.args.get('aluno', '').strip()
     busca        = request.args.get('q', '').strip()
 
     query = Projeto.query.join(Usuario, Projeto.aluno_id == Usuario.id)\
@@ -27,6 +34,13 @@ def index():
                 Projeto.tecnologias.ilike(f'%{busca}%')
             )
         )
+    if filtro_aluno:
+        query = query.filter(
+            db.or_(
+                Usuario.nome.ilike(f'%{filtro_aluno}%'),
+                Projeto.participantes.ilike(f'%{filtro_aluno}%')
+            )
+        )
 
     projetos = query.order_by(Projeto.criado_em.desc()).all()
 
@@ -41,6 +55,7 @@ def index():
                            turmas=turmas,
                            filtro_turma=filtro_turma,
                            filtro_turno=filtro_turno,
+                           filtro_aluno=filtro_aluno,
                            busca=busca)
 
 

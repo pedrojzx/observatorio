@@ -1,5 +1,11 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Desenvolvedor: Guilherme Gonçalves
+# Módulo: Projetos e Avaliação — submissão, edição, exclusão e rubrica
+# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025/2026
+# ─────────────────────────────────────────────────────────────────────────────
+
 from flask import send_from_directory
-import os
+import os, json
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -70,7 +76,8 @@ def novo_projeto():
         descricao     = request.form.get('descricao', '').strip()
         tecnologias   = request.form.get('tecnologias', '').strip()
         link_github   = request.form.get('link_github', '').strip()
-        participantes = request.form.get('participantes', '').strip()
+        participantes         = request.form.get('participantes', '').strip()
+        participantes_github  = request.form.get('participantes_github', '').strip()
 
         if not titulo or not descricao:
             flash('Título e descrição são obrigatórios.', 'danger')
@@ -88,7 +95,7 @@ def novo_projeto():
         projeto = Projeto(
             titulo=titulo, descricao=descricao, tecnologias=tecnologias,
             link_github=link_github, arquivo=arquivo_nome, aluno_id=current_user.id,
-            participantes=participantes
+            participantes=participantes, participantes_github=participantes_github or None
         )
         db.session.add(projeto)
         db.session.commit()
@@ -132,7 +139,8 @@ def editar_projeto(id):
         projeto.descricao     = descricao
         projeto.tecnologias   = request.form.get('tecnologias', '').strip()
         projeto.link_github   = request.form.get('link_github', '').strip()
-        projeto.participantes = request.form.get('participantes', '').strip()
+        projeto.participantes         = request.form.get('participantes', '').strip()
+        projeto.participantes_github  = request.form.get('participantes_github', '').strip() or None
         projeto.atualizado_em = datetime.utcnow()
 
         if 'arquivo' in request.files:
@@ -182,6 +190,12 @@ def avaliar_projeto(id):
         return destino_voltar()
 
     projeto = db.get_or_404(Projeto, id)
+
+    # ── PROTEÇÃO: só o professor que avaliou (ou admin) pode alterar ──
+    if projeto.avaliacao and current_user.perfil == 'professor':
+        if projeto.avaliacao.professor_id != current_user.id:
+            flash('Este projeto já foi avaliado por outro professor e não pode ser alterado.', 'warning')
+            return destino_voltar()
 
     if request.method == 'GET' and projeto.status == 'enviado':
         projeto.status = 'em_avaliacao'

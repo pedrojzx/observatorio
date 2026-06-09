@@ -1,3 +1,9 @@
+{# ─────────────────────────────────────────────────────────────────────────── #}
+{# Desenvolvedor: Filipe José #}
+{# Template: Painel do aluno e professor — listagem de projetos #}
+{# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025   #}
+{# ─────────────────────────────────────────────────────────────────────────── #}
+
 {% extends "base.html" %}
 {% block title %}Painel{% endblock %}
 
@@ -47,11 +53,11 @@
         <div class="num">{{ projetos | length }}</div>
         <div class="lbl">Total de Projetos</div>
     </div>
-    <div class="stat-card" style="border-color:#0369a1;">
+    <div class="stat-card" style="border-top-color:#0369a1;">
         <div class="num">{{ projetos | selectattr('status', 'equalto', 'enviado') | list | length }}</div>
         <div class="lbl">Aguardando Avaliação</div>
     </div>
-    <div class="stat-card" style="border-color:#16a34a;">
+    <div class="stat-card" style="border-top-color:#16a34a;">
         <div class="num">{{ projetos | selectattr('status', 'equalto', 'avaliado') | list | length }}</div>
         <div class="lbl">Avaliados</div>
     </div>
@@ -59,7 +65,7 @@
 
 {# ── FILTROS ── #}
 <div class="card" style="margin-bottom:1.5rem;">
-    <div class="card-header"><h2>🔍 Filtros</h2></div>
+    <div class="card-header" style="background:var(--azul); border-bottom:none;"><h2 style="color:#fff;">🔍 Filtros</h2></div>
     <div class="card-body">
         <form method="GET" action="{{ url_for('projetos.painel') }}"
               style="display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end;">
@@ -95,7 +101,7 @@
             </div>
 
             <div style="display:flex; gap:.5rem;">
-                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <button type="submit" class="btn btn-azul">Filtrar</button>
                 {% if filtro_turma or filtro_turno or filtro_status %}
                 <a href="{{ url_for('projetos.painel') }}" class="btn btn-outline">✕ Limpar</a>
                 {% endif %}
@@ -129,8 +135,8 @@
 
 {# ── TABELA DE PROJETOS ── #}
 <div class="card">
-    <div class="card-header">
-        <h2>
+    <div class="card-header" style="background:var(--laranja); border-bottom:none;">
+        <h2 style="color:#fff;">
             {% if current_user.perfil == 'aluno' %}Projetos Submetidos ({{ projetos | length }})
             {% else %}Projetos ({{ projetos | length }})
             {% endif %}
@@ -187,7 +193,7 @@
                             <a href="{{ url_for('projetos.ver_projeto', id=p.id) }}" class="btn btn-outline btn-sm">Ver</a>
                             {% if current_user.perfil == 'aluno' and p.aluno_id == current_user.id %}
                                 {% if p.status != 'avaliado' %}
-                                    <a href="{{ url_for('projetos.editar_projeto', id=p.id) }}" class="btn btn-primary btn-sm">Editar</a>
+                                    <a href="{{ url_for('projetos.editar_projeto', id=p.id) }}" class="btn btn-azul btn-sm">Editar</a>
                                     <form method="POST" action="{{ url_for('projetos.excluir_projeto', id=p.id) }}"
                                           onsubmit="return confirm('Tem certeza que deseja excluir este projeto?');" style="display:inline;">
                                         <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
@@ -201,12 +207,23 @@
                                 {% endif %}
                             {% endif %}
                             {% if current_user.perfil in ('professor', 'admin') %}
-                                <a href="{{ url_for('projetos.avaliar_projeto', id=p.id) }}" class="btn btn-laranja btn-sm">Avaliar</a>
-                                <form method="POST" action="{{ url_for('projetos.excluir_projeto', id=p.id) }}"
-                                      onsubmit="return confirm('Excluir o projeto \'{{ p.titulo }}\'? Esta ação não pode ser desfeita.');"
-                                      style="display:inline;">
-                                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
-                                </form>
+                                {% if p.status == 'avaliado' %}
+                                    {% if current_user.perfil == 'admin' or p.avaliacao.professor_id == current_user.id %}
+                                        <a href="{{ url_for('projetos.avaliar_projeto', id=p.id) }}" class="btn btn-azul btn-sm">Editar</a>
+                                        <form method="POST" action="{{ url_for('projetos.excluir_projeto', id=p.id) }}"
+                                              onsubmit="return confirm('Excluir o projeto \'{{ p.titulo }}\'? Esta ação não pode ser desfeita.');"
+                                              style="display:inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                                        </form>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="{{ url_for('projetos.avaliar_projeto', id=p.id) }}" class="btn btn-laranja btn-sm">Avaliar</a>
+                                    <form method="POST" action="{{ url_for('projetos.excluir_projeto', id=p.id) }}"
+                                          onsubmit="return confirm('Excluir o projeto \'{{ p.titulo }}\'? Esta ação não pode ser desfeita.');"
+                                          style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                                    </form>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </td>

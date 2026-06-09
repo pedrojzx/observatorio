@@ -1,3 +1,9 @@
+{# ─────────────────────────────────────────────────────────────────────────── #}
+{# Desenvolvedor: Guilherme Gonçalves #}
+{# Template: Formulário de avaliação com rubrica ponderada #}
+{# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025   #}
+{# ─────────────────────────────────────────────────────────────────────────── #}
+
 {% extends "base.html" %}
 {% block title %}Avaliar — {{ projeto.titulo }}{% endblock %}
 
@@ -81,14 +87,30 @@
     <div class="card">
         <div class="card-header"><h2>📋 Projeto</h2></div>
         <div class="card-body">
-            <h3 style="font-size:1rem; color:#1a2f6e; margin-bottom:.5rem;">{{ projeto.titulo }}</h3>
+            <h3 style="font-size:1rem; color:#1a5580; margin-bottom:.5rem;">{{ projeto.titulo }}</h3>
             <p style="font-size:.875rem; color:#374151; line-height:1.7; margin-bottom:1rem;">{{ projeto.descricao }}</p>
             {% if projeto.tecnologias %}
             <div style="font-size:.8rem; color:#6b7280; margin-bottom:.5rem;">
                 <strong>Tecnologias:</strong> {{ projeto.tecnologias }}
             </div>
             {% endif %}
-            {% if projeto.participantes %}
+            {% if projeto.participantes_github %}
+            <div style="margin-top:.5rem; margin-bottom:.5rem;">
+                <div style="font-size:.75rem; font-weight:700; color:var(--azul); margin-bottom:.3rem;">👥 Participantes</div>
+                {% for m in projeto.participantes_github | from_json %}
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:2px 0; gap:.5rem;">
+                    <span style="font-size:.82rem; color:#374151;">• {{ m.nome }}</span>
+                    {% if m.github %}
+                    <a href="{{ m.github }}" target="_blank"
+                       style="font-size:.72rem; color:#0369a1; white-space:nowrap; display:inline-flex; align-items:center; gap:.2rem;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% elif projeto.participantes %}
             <div style="margin-top:.5rem; margin-bottom:.5rem;">
                 <div style="font-size:.75rem; font-weight:700; color:var(--azul); margin-bottom:.3rem;">👥 Participantes</div>
                 {% for nome in projeto.participantes.split(',') %}
@@ -104,10 +126,10 @@
                 <a href="{{ url_for('projetos.download_arquivo', filename=projeto.arquivo) }}"
                    target="_blank"
                    style="display:inline-flex; align-items:center; gap:.4rem; font-size:.82rem;
-                          background:#1a2f6e; color:#fff; padding:.45rem .9rem; border-radius:8px;
+                          background:var(--laranja); color:#fff; padding:.45rem .9rem; border-radius:6px; border:1px solid var(--laranja-d);
                           text-decoration:none; font-weight:600; transition:background .2s;"
-                   onmouseover="this.style.background='#2a4494'"
-                   onmouseout="this.style.background='#1a2f6e'">
+                   onmouseover="this.style.background='#2376a8'"
+                   onmouseout="this.style.background='#1a5580'">
                     📎 Baixar Arquivo Entregue
                 </a>
             </div>
@@ -118,9 +140,15 @@
     <!-- Form de avaliação com rubrica -->
     <div>
         {% if projeto.avaliacao %}
-        <div style="background:#fef3c7; border-radius:8px; padding:.75rem 1rem; font-size:.82rem; color:#92400e; margin-bottom:1rem;">
+        {% if current_user.perfil == 'admin' or projeto.avaliacao.professor_id == current_user.id %}
+        <div style="background:#fef3c7; border:1px solid #f59e0b; border-radius:8px; padding:.75rem 1rem; font-size:.82rem; color:#92400e; margin-bottom:1rem;">
             ⚠️ Projeto já avaliado por <strong>{{ projeto.avaliacao.professor.nome }}</strong>. Você pode alterar abaixo.
         </div>
+        {% else %}
+        <div style="background:#fee2e2; border:1px solid #f87171; border-radius:8px; padding:.75rem 1rem; font-size:.82rem; color:#b91c1c; margin-bottom:1rem;">
+            🔒 Este projeto já foi avaliado por <strong>{{ projeto.avaliacao.professor.nome }}</strong>. Apenas esse professor ou a administração pode alterar a avaliação.
+        </div>
+        {% endif %}
         {% endif %}
 
         <form method="POST" id="formAvaliacao">
@@ -216,7 +244,8 @@
                           placeholder="Descreva pontos positivos, pontos a melhorar e observações gerais...">{{ projeto.avaliacao.comentario if projeto.avaliacao else '' }}</textarea>
             </div>
 
-            <button type="submit" class="btn btn-laranja" style="width:100%; font-size:1rem; padding:.75rem;">
+            <button type="submit" class="btn btn-laranja" style="width:100%; font-size:1rem; padding:.75rem;"
+                {% if projeto.avaliacao and current_user.perfil == 'professor' and projeto.avaliacao.professor_id != current_user.id %}disabled style="width:100%; font-size:1rem; padding:.75rem; opacity:.4; cursor:not-allowed;"{% endif %}>
                 ✅ {{ "Salvar Avaliação" if not projeto.avaliacao else "Atualizar Avaliação" }}
             </button>
         </form>
@@ -256,5 +285,14 @@ function calcularNota() {
 
 document.querySelectorAll('.rubrica-field').forEach(el => el.addEventListener('input', calcularNota));
 calcularNota();
+
+{% if projeto.avaliacao and current_user.perfil == 'professor' and projeto.avaliacao.professor_id != current_user.id %}
+// Bloqueia todos os campos do formulário para professores não autorizados
+document.querySelectorAll('#formAvaliacao input, #formAvaliacao textarea, #formAvaliacao button').forEach(el => {
+    el.disabled = true;
+    el.style.opacity = '0.5';
+    el.style.cursor = 'not-allowed';
+});
+{% endif %}
 </script>
 {% endblock %}

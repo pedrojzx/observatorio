@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Desenvolvedor: Pedro Roberto e Ivan Roberto
+# Módulo: Setup da Aplicação — Blueprints, migrações e inicialização
+# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025/2026
+# ─────────────────────────────────────────────────────────────────────────────
+
 from flask import Flask
 from flask_login import LoginManager
 from config import Config
@@ -30,6 +36,18 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(lgpd_bp)
 app.register_blueprint(portfolio_bp)
 
+import json as _json
+
+@app.template_filter('from_json')
+def from_json_filter(value):
+    """Parse a JSON string in Jinja2 templates."""
+    if not value:
+        return []
+    try:
+        return _json.loads(value)
+    except Exception:
+        return []
+
 
 def aplicar_migrations(app):
     """Adiciona colunas faltantes sem apagar dados existentes."""
@@ -48,6 +66,7 @@ def aplicar_migrations(app):
             ("avaliacoes", "nota_interface",       "FLOAT NULL"),
             ("avaliacoes", "nota_apresentacao",    "FLOAT NULL"),
             ("projetos",   "participantes",           "TEXT NULL"),
+            ("projetos",   "participantes_github",     "TEXT NULL"),
         ]
 
         # Garantir que o ENUM de perfil inclui 'empresa'

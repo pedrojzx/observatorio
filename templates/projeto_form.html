@@ -1,3 +1,9 @@
+{# ─────────────────────────────────────────────────────────────────────────── #}
+{# Desenvolvedor: Guilherme Gonçalves #}
+{# Template: Formulário de submissão e edição de projetos #}
+{# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025   #}
+{# ─────────────────────────────────────────────────────────────────────────── #}
+
 {% extends "base.html" %}
 {% block title %}{{ acao }} Projeto{% endblock %}
 
@@ -49,23 +55,62 @@
             <div class="form-group">
                 <label>👥 Participantes do Grupo</label>
                 <p style="font-size:.78rem; color:#6b7280; margin-bottom:.75rem;">
-                    Adicione o nome completo de cada integrante do grupo.
+                    Adicione o nome completo e o GitHub de cada integrante do grupo.
                 </p>
 
+                {# Cabeçalho das colunas #}
+                <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:.5rem; margin-bottom:.35rem; padding:0 .1rem;">
+                    <span style="font-size:.72rem; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:.04em;">Nome completo</span>
+                    <span style="font-size:.72rem; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:.04em;">GitHub (opcional)</span>
+                    <span></span>
+                </div>
+
                 <div id="participantes-lista" style="display:flex; flex-direction:column; gap:.5rem; margin-bottom:.75rem;">
-                    {% set nomes = (projeto.participantes.split(',') if projeto and projeto.participantes else ['']) %}
-                    {% for nome in nomes %}
-                    <div class="participante-item" style="display:flex; gap:.5rem; align-items:center;">
-                        <input type="text" name="nomes[]" value="{{ nome.strip() }}"
-                               placeholder="Nome completo do integrante"
-                               style="flex:1; font-size:.85rem; padding:.5rem .75rem;
-                                      border:1.5px solid var(--cinza-b); border-radius:8px;">
-                        <button type="button" onclick="removerParticipante(this)"
-                                style="background:#fee2e2; color:#dc2626; border:none; border-radius:8px;
-                                       padding:.5rem .75rem; cursor:pointer; font-size:.85rem; font-weight:700;
-                                       flex-shrink:0;" title="Remover">✕</button>
-                    </div>
-                    {% endfor %}
+                    {% if projeto and projeto.participantes_github %}
+                        {% set membros = projeto.participantes_github | tojson | safe %}
+                    {% endif %}
+                    {# Render existing members from JSON or fallback to plain participantes #}
+                    {% if projeto and projeto.participantes_github %}
+                        {% for m in projeto.participantes_github | from_json %}
+                        <div class="participante-item" style="display:grid; grid-template-columns:1fr 1fr auto; gap:.5rem; align-items:center;">
+                            <input type="text" name="p_nome[]" value="{{ m.nome }}"
+                                   placeholder="Nome completo do integrante"
+                                   style="font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
+                            <input type="text" name="p_github[]" value="{{ m.github }}"
+                                   placeholder="https://github.com/usuario"
+                                   style="font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
+                            <button type="button" onclick="removerParticipante(this)"
+                                    style="background:#fee2e2; color:#dc2626; border:none; border-radius:8px;
+                                           padding:.5rem .75rem; cursor:pointer; font-size:.85rem; font-weight:700;" title="Remover">✕</button>
+                        </div>
+                        {% endfor %}
+                    {% elif projeto and projeto.participantes %}
+                        {% for nome in projeto.participantes.split(',') %}
+                        <div class="participante-item" style="display:grid; grid-template-columns:1fr 1fr auto; gap:.5rem; align-items:center;">
+                            <input type="text" name="p_nome[]" value="{{ nome.strip() }}"
+                                   placeholder="Nome completo do integrante"
+                                   style="font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
+                            <input type="text" name="p_github[]" value=""
+                                   placeholder="https://github.com/usuario"
+                                   style="font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
+                            <button type="button" onclick="removerParticipante(this)"
+                                    style="background:#fee2e2; color:#dc2626; border:none; border-radius:8px;
+                                           padding:.5rem .75rem; cursor:pointer; font-size:.85rem; font-weight:700;" title="Remover">✕</button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="participante-item" style="display:grid; grid-template-columns:1fr 1fr auto; gap:.5rem; align-items:center;">
+                            <input type="text" name="p_nome[]" value=""
+                                   placeholder="Nome completo do integrante"
+                                   style="font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
+                            <input type="text" name="p_github[]" value=""
+                                   placeholder="https://github.com/usuario"
+                                   style="font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
+                            <button type="button" onclick="removerParticipante(this)"
+                                    style="background:#fee2e2; color:#dc2626; border:none; border-radius:8px;
+                                           padding:.5rem .75rem; cursor:pointer; font-size:.85rem; font-weight:700;" title="Remover">✕</button>
+                        </div>
+                    {% endif %}
                 </div>
 
                 <button type="button" onclick="adicionarParticipante()"
@@ -74,8 +119,9 @@
                     + Adicionar Integrante
                 </button>
 
-                {# Campo hidden que será preenchido antes do submit #}
+                {# Campos hidden preenchidos antes do submit #}
                 <input type="hidden" name="participantes" id="participantes-hidden">
+                <input type="hidden" name="participantes_github" id="participantes-github-hidden">
             </div>
 
             <div class="form-group">
@@ -103,15 +149,15 @@ function adicionarParticipante() {
     const lista = document.getElementById('participantes-lista');
     const div = document.createElement('div');
     div.className = 'participante-item';
-    div.style.cssText = 'display:flex; gap:.5rem; align-items:center;';
+    div.style.cssText = 'display:grid; grid-template-columns:1fr 1fr auto; gap:.5rem; align-items:center;';
     div.innerHTML = `
-        <input type="text" name="nomes[]" placeholder="Nome completo do integrante"
-               style="flex:1; font-size:.85rem; padding:.5rem .75rem;
-                      border:1.5px solid var(--cinza-b); border-radius:8px;">
+        <input type="text" name="p_nome[]" placeholder="Nome completo do integrante"
+               style="font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
+        <input type="text" name="p_github[]" placeholder="https://github.com/usuario"
+               style="font-size:.85rem; padding:.5rem .75rem; border:1.5px solid var(--cinza-b); border-radius:8px;">
         <button type="button" onclick="removerParticipante(this)"
                 style="background:#fee2e2; color:#dc2626; border:none; border-radius:8px;
-                       padding:.5rem .75rem; cursor:pointer; font-size:.85rem; font-weight:700;
-                       flex-shrink:0;" title="Remover">✕</button>
+                       padding:.5rem .75rem; cursor:pointer; font-size:.85rem; font-weight:700;" title="Remover">✕</button>
     `;
     lista.appendChild(div);
     div.querySelector('input').focus();
@@ -122,14 +168,22 @@ function removerParticipante(btn) {
     if (lista.querySelectorAll('.participante-item').length > 1) {
         btn.parentElement.remove();
     } else {
-        btn.parentElement.querySelector('input').value = '';
+        btn.parentElement.querySelectorAll('input').forEach(i => i.value = '');
     }
 }
 
 function montarParticipantes() {
-    const inputs = document.querySelectorAll('#participantes-lista input[name="nomes[]"]');
-    const nomes = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
-    document.getElementById('participantes-hidden').value = nomes.join(', ');
+    const nomes   = Array.from(document.querySelectorAll('#participantes-lista input[name="p_nome[]"]'));
+    const githubs = Array.from(document.querySelectorAll('#participantes-lista input[name="p_github[]"]'));
+
+    const membros = nomes
+        .map((inp, i) => ({ nome: inp.value.trim(), github: githubs[i] ? githubs[i].value.trim() : '' }))
+        .filter(m => m.nome !== '');
+
+    // Campo legado (retrocompatível)
+    document.getElementById('participantes-hidden').value = membros.map(m => m.nome).join(', ');
+    // Campo novo com GitHub individual
+    document.getElementById('participantes-github-hidden').value = JSON.stringify(membros);
 }
 </script>
 {% endblock %}

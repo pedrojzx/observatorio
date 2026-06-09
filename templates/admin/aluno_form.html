@@ -1,3 +1,9 @@
+{# ─────────────────────────────────────────────────────────────────────────── #}
+{# Desenvolvedor: Timóteo Batista #}
+{# Template: Formulário de cadastro de aluno (professor/admin) #}
+{# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025   #}
+{# ─────────────────────────────────────────────────────────────────────────── #}
+
 {% extends "base.html" %}
 {% block title %}{{ acao }} Aluno{% endblock %}
 
@@ -11,7 +17,7 @@
 </div>
 
 <div class="card" style="max-width: 620px;">
-    <div class="card-header"><h2>🎓 Dados do Aluno</h2></div>
+    <div class="card-header" style="background:var(--laranja); border-bottom:none;"><h2 style="color:#fff;">🎓 Dados do Aluno</h2></div>
     <div class="card-body">
         <form method="POST">
             <div class="form-group">
@@ -54,7 +60,7 @@
                 </div>
             </div>
 
-            <div style="background:#f0f4ff; border-radius:8px; padding:.85rem 1rem; margin-bottom:1rem; font-size:.82rem; color:#1a2f6e;">
+            <div style="background:#f0f4ff; border-radius:8px; padding:.85rem 1rem; margin-bottom:1rem; font-size:.82rem; color:#1a5580;">
                 ℹ️ O perfil <strong>Aluno</strong> é atribuído automaticamente.
             </div>
 

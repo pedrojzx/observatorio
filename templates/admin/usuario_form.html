@@ -1,3 +1,9 @@
+{# ─────────────────────────────────────────────────────────────────────────── #}
+{# Desenvolvedor: Timóteo Batista #}
+{# Template: Formulário de cadastro de usuário (admin) #}
+{# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025   #}
+{# ─────────────────────────────────────────────────────────────────────────── #}
+
 {% extends "base.html" %}
 {% block title %}{{ acao }} Usuário{% endblock %}
 
@@ -11,7 +17,7 @@
 </div>
 
 <div class="card" style="max-width: 640px;">
-    <div class="card-header"><h2>👤 Dados do Usuário</h2></div>
+    <div class="card-header" style="background: var(--laranja); border-color: var(--laranja);"><h2 style="color:#fff;">👤 Dados do Usuário</h2></div>
     <div class="card-body">
         <form method="POST">
             <div class="form-group">

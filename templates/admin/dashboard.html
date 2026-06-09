@@ -1,57 +1,118 @@
+{# ─────────────────────────────────────────────────────────────────────────── #}
+{# Desenvolvedor: Timóteo Batista #}
+{# Template: Dashboard administrativo — métricas, usuários e projetos #}
+{# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025   #}
+{# ─────────────────────────────────────────────────────────────────────────── #}
+
 {% extends "base.html" %}
 {% block title %}Painel Admin{% endblock %}
 
 {% block content %}
 <style>
+    /* ── METRIC CARDS (top 5) ── */
     .dash-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
     .dash-card {
-        background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
-        padding: 1.25rem; border-left: 4px solid var(--azul); text-align: center;
-        transition: transform .2s;
+        background: #fff;
+        border-radius: var(--radius);
+        padding: 1.1rem 1.25rem;
+        text-align: center;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        transition: transform .15s, box-shadow .15s;
+        position: relative; overflow: hidden;
     }
-    .dash-card:hover { transform: translateY(-2px); }
-    .dash-card .num { font-size: 2rem; font-weight: 800; color: var(--azul); }
-    .dash-card .lbl { font-size: .78rem; color: var(--cinza); margin-top: .2rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
-    .dash-card.laranja  { border-color: var(--laranja); }  .dash-card.laranja  .num { color: var(--laranja); }
-    .dash-card.verde    { border-color: #16a34a; }          .dash-card.verde    .num { color: #16a34a; }
-    .dash-card.amarelo  { border-color: #d97706; }          .dash-card.amarelo  .num { color: #d97706; }
-    .dash-card.roxo     { border-color: #7c3aed; }          .dash-card.roxo     .num { color: #7c3aed; }
+    .dash-card::after {
+        content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+        height: 3px; background: var(--border);
+    }
+    .dash-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(26,47,110,.12); }
+    .dash-card .num { font-size: 2rem; font-weight: 800; color: var(--azul); line-height: 1.1; }
+    .dash-card .lbl { font-size: .7rem; color: var(--cinza); margin-top: .25rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+    /* accent bottom bar por tipo */
+    .dash-card.laranja::after  { background: var(--laranja); }
+    .dash-card.laranja .num    { color: var(--laranja); }
+    .dash-card.verde::after    { background: #1a7f37; }
+    .dash-card.verde .num      { color: #1a7f37; }
+    .dash-card.amarelo::after  { background: #9a6700; }
+    .dash-card.amarelo .num    { color: #9a6700; }
+    .dash-card.roxo::after     { background: #7c3aed; }
+    .dash-card.roxo .num       { color: #7c3aed; }
 
-    /* Gráfico de barra manual */
-    .bar-track { background: var(--cinza-b); border-radius: 20px; height: 10px; overflow: hidden; margin: .4rem 0; }
+    /* ── ACOMPANHAMENTO POR TURMA ── */
+    .turma-card-wrap { background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+    .turma-card-header {
+        padding: .85rem 1.25rem;
+        background: var(--azul);
+        border-bottom: 2px solid var(--laranja);
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .turma-card-header h2 { font-size: .9rem; font-weight: 700; color: #fff; }
+
+    .turma-row { display: grid; grid-template-columns: 110px 1fr 60px 60px 60px 70px; align-items: center; gap: .75rem; padding: .75rem 1.25rem; border-bottom: 1px solid var(--border); font-size: .82rem; }
+    .turma-row:last-child { border-bottom: none; }
+    .turma-row:hover { background: var(--cinza-l); }
+    .turma-head { background: var(--cinza-l); color: var(--cinza); font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+
+    .bar-track { background: var(--cinza-b); border-radius: 20px; height: 8px; overflow: hidden; margin: .35rem 0; }
     .bar-fill  { height: 100%; border-radius: 20px; transition: width .6s ease; }
 
-    .turma-row { display: grid; grid-template-columns: 110px 1fr 60px 60px 60px 70px; align-items: center; gap: .75rem; padding: .7rem 1.25rem; border-bottom: 1px solid var(--cinza-b); font-size: .82rem; }
-    .turma-row:last-child { border-bottom: none; }
-    .turma-row:hover { background: #f8f9ff; }
-    .turma-head { background: var(--azul); color: #fff; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; border-radius: var(--radius) var(--radius) 0 0; }
-
     .nota-chip { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: .78rem; font-weight: 700; }
-    .nota-alta  { background: #dcfce7; color: #15803d; }
-    .nota-media { background: #fef3c7; color: #92400e; }
-    .nota-baixa { background: #fee2e2; color: #dc2626; }
-    .nota-nd    { background: var(--cinza-b); color: var(--cinza); }
+    .nota-alta  { background: var(--success-bg); color: var(--success); border: 1px solid #aceebb; }
+    .nota-media { background: var(--warning-bg); color: var(--warning); border: 1px solid #e3b341; }
+    .nota-baixa { background: var(--danger-bg);  color: var(--danger);  border: 1px solid #ffb8ba; }
+    .nota-nd    { background: var(--cinza-l); color: var(--cinza); }
 
-    .turno-bar-wrap { display: flex; flex-direction: column; gap: .5rem; }
+    /* ── PROJETOS POR TURNO ── */
+    .turno-card-wrap { background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+    .turno-card-header {
+        padding: .85rem 1.25rem;
+        background: var(--azul);
+        border-bottom: 2px solid var(--laranja);
+    }
+    .turno-card-header h2 { font-size: .9rem; font-weight: 700; color: #fff; }
+    .turno-bar-wrap { display: flex; flex-direction: column; gap: .6rem; padding: 1rem 1.25rem; }
     .turno-line { display: flex; align-items: center; gap: .75rem; font-size: .82rem; }
-    .turno-name { width: 60px; font-weight: 600; color: var(--azul); }
-    .turno-bar-track { flex: 1; background: var(--cinza-b); border-radius: 20px; height: 18px; overflow: hidden; position: relative; }
+    .turno-name { width: 60px; font-weight: 600; color: var(--texto); }
+    .turno-bar-track { flex: 1; background: var(--cinza-b); border-radius: 20px; height: 20px; overflow: hidden; position: relative; }
     .turno-bar-fill  { height: 100%; border-radius: 20px; display: flex; align-items: center; padding-left: 8px; font-size: .72rem; font-weight: 700; color: #fff; white-space: nowrap; }
-    .turno-count { width: 40px; font-size: .78rem; color: var(--cinza); text-align: right; }
+    .turno-count { width: 30px; font-size: .78rem; color: var(--cinza); text-align: right; font-weight: 700; }
+
+    /* ── ÚLTIMAS AVALIAÇÕES ── */
+    .aval-card-wrap { background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+    .aval-card-header {
+        padding: .85rem 1.25rem;
+        background: var(--azul);
+        border-bottom: 2px solid var(--laranja);
+    }
+    .aval-card-header h2 { font-size: .9rem; font-weight: 700; color: #fff; }
+    .ult-aval-row { display: flex; align-items: center; justify-content: space-between; padding: .7rem 1.25rem; border-bottom: 1px solid var(--border); font-size: .82rem; }
+    .ult-aval-row:last-child { border-bottom: none; }
+    .ult-aval-row:hover { background: var(--cinza-l); }
+
+    /* ── STAT CARDS (Projetos section) ── */
+    .stat-card-azul {
+        background: #fff;
+        border-radius: var(--radius);
+        padding: 1.1rem 1.25rem;
+        border-top: 3px solid var(--laranja);
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        border-left: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+    }
+    .stat-card-azul .num { font-size: 1.9rem; font-weight: 800; color: var(--azul); }
+    .stat-card-azul .lbl { font-size: .75rem; color: var(--cinza); font-weight: 500; margin-top: .2rem; text-transform: uppercase; letter-spacing: .04em; }
 
     .relatorio-btns { display: flex; gap: .75rem; }
-    .btn-csv { background: #16a34a; color: #fff; }
-    .btn-csv:hover { background: #15803d; }
-    .btn-pdf { background: #dc2626; color: #fff; }
-    .btn-pdf:hover { background: #b91c1c; }
-
-    .ult-aval-row { display: flex; align-items: center; justify-content: space-between; padding: .65rem 1.25rem; border-bottom: 1px solid var(--cinza-b); font-size: .82rem; }
-    .ult-aval-row:last-child { border-bottom: none; }
+    .btn-csv { background: #15803d; color: #fff; border: 1px solid #14532d; }
+    .btn-csv:hover { background: #166534; }
+    .btn-pdf { background: #b91c1c; color: #fff; border: 1px solid #991b1b; }
+    .btn-pdf:hover { background: #991b1b; }
 </style>
 
 <div class="page-header">
     <div>
-        <h1>Painel Administrativo</h1>
+        <h1>Painel <span style="color:var(--laranja);">Administrativo</span></h1>
         <p>Coordenador · Acompanhamento geral dos Projetos Integradores</p>
     </div>
     <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
@@ -90,8 +151,11 @@
 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
 
     {# ── MÉTRICAS POR TURMA ── #}
-    <div class="card">
-        <div class="card-header"><h2>🏫 Acompanhamento por Turma</h2></div>
+    <div class="turma-card-wrap">
+        <div class="turma-card-header">
+            <h2>🏫 Acompanhamento por Turma</h2>
+            <span style="font-size:.7rem; color:rgba(255,255,255,.5); font-weight:600;">PROGRESSO · ALUNOS · PROJETOS · AVAL. · MÉDIA</span>
+        </div>
         {% if stats_turma %}
         <div class="turma-row turma-head">
             <div>Turma</div><div>Progresso</div><div style="text-align:center;">Alunos</div>
@@ -100,14 +164,14 @@
         </div>
         {% for s in stats_turma %}
         <div class="turma-row">
-            <div style="font-weight:700; color:var(--azul);">{{ s.turma }}</div>
+            <div style="font-weight:700; color:var(--laranja);">{{ s.turma }}</div>
             <div>
-                <div style="display:flex; justify-content:space-between; font-size:.72rem; color:var(--cinza);">
+                <div style="display:flex; justify-content:space-between; font-size:.7rem; color:var(--cinza);">
                     <span>{{ s.pct }}% avaliados</span>
                     <span>{{ s.avaliados }}/{{ s.projetos }}</span>
                 </div>
                 <div class="bar-track">
-                    <div class="bar-fill" style="width:{{ s.pct }}%; background:{{ '#16a34a' if s.pct == 100 else ('#d97706' if s.pct >= 50 else '#1a2f6e') }};"></div>
+                    <div class="bar-fill" style="width:{{ s.pct }}%; background:{{ 'var(--laranja)' if s.pct == 100 else ('#fbbf24' if s.pct >= 50 else 'rgba(255,255,255,.3)') }};"></div>
                 </div>
             </div>
             <div style="text-align:center; color:var(--cinza);">{{ s.alunos }}</div>
@@ -130,13 +194,12 @@
     {# ── MÉTRICAS POR TURNO + ÚLTIMAS AVALIAÇÕES ── #}
     <div style="display:flex; flex-direction:column; gap:1.5rem;">
 
-        <div class="card">
-            <div class="card-header"><h2>🌗 Projetos por Turno</h2></div>
-            <div class="card-body">
-                {% set nomes_turno = {'manha': ' Manhã', 'tarde': ' Tarde', 'noite': ' Noite'} %}
-                {% set cores_turno = {'manha': '#f07621', 'tarde': '#2a4494', 'noite': '#7c3aed'} %}
+        <div class="turno-card-wrap">
+            <div class="turno-card-header"><h2>🌗 Projetos por Turno</h2></div>
+                {% set nomes_turno = {'manha': 'Manhã', 'tarde': 'Tarde', 'noite': 'Noite'} %}
+                {% set cores_turno = {'manha': 'var(--laranja)', 'tarde': '#60a5fa', 'noite': '#c084fc'} %}
                 {% set max_t = [stats_turno | map(attribute='total') | list | max, 1] | max %}
-                <div class="turno-bar-wrap" style="padding:.5rem 0;">
+                <div class="turno-bar-wrap">
                     {% for s in stats_turno %}
                     <div class="turno-line">
                         <div class="turno-name">{{ nomes_turno[s.turno] }}</div>
@@ -150,17 +213,16 @@
                     </div>
                     {% endfor %}
                 </div>
-                <div style="font-size:.75rem; color:var(--cinza); text-align:center; margin-top:.5rem;">Números dentro da barra = avaliados / total</div>
-            </div>
+                <div style="font-size:.72rem; color:var(--cinza); text-align:center; padding: 0 1.25rem .85rem;">Avaliados / Total dentro da barra</div>
         </div>
 
-        <div class="card">
-            <div class="card-header"><h2>🕐 Últimas Avaliações</h2></div>
+        <div class="aval-card-wrap">
+            <div class="aval-card-header"><h2>🕐 Últimas Avaliações</h2></div>
             {% if ultimas_avaliacoes %}
             {% for av in ultimas_avaliacoes %}
             <div class="ult-aval-row">
                 <div>
-                    <div style="font-weight:600; font-size:.82rem; color:var(--azul);">{{ av.projeto.titulo[:35] }}{% if av.projeto.titulo|length > 35 %}…{% endif %}</div>
+                    <div style="font-weight:600; font-size:.82rem; color:var(--texto);">{{ av.projeto.titulo[:35] }}{% if av.projeto.titulo|length > 35 %}…{% endif %}</div>
                     <div style="font-size:.72rem; color:var(--cinza);">por {{ av.professor.nome }} · {{ av.criado_em.strftime('%d/%m/%Y') }}</div>
                 </div>
                 <span class="nota-chip {{ 'nota-alta' if av.nota >= 7 else ('nota-media' if av.nota >= 5 else 'nota-baixa') }}">{{ '%.1f' % av.nota }}</span>
@@ -178,16 +240,16 @@
 
     {# Cards de métricas de projetos #}
     <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem;">
-        <div class="stat-card">
+        <div class="stat-card-azul">
             <div class="num">{{ total_projetos }}</div>
             <div class="lbl">Total de Projetos</div>
         </div>
-        <div class="stat-card" style="border-left-color:#d97706;">
-            <div class="num" style="color:#d97706;">{{ projetos_enviados + projetos_em_aval }}</div>
+        <div class="stat-card-azul" style="border-top-color:#fbbf24;">
+            <div class="num">{{ projetos_enviados + projetos_em_aval }}</div>
             <div class="lbl">Aguardando Avaliação</div>
         </div>
-        <div class="stat-card" style="border-left-color:#16a34a;">
-            <div class="num" style="color:#16a34a;">{{ projetos_avaliados }}</div>
+        <div class="stat-card-azul" style="border-top-color:#4ade80;">
+            <div class="num">{{ projetos_avaliados }}</div>
             <div class="lbl">Avaliados</div>
         </div>
     </div>
@@ -226,7 +288,7 @@
                         </select>
                     </div>
                     <div>
-                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                        <button type="submit" class="btn btn-azul">Filtrar</button>
                     </div>
                 </div>
                 {# Busca por texto — linha extra #}
@@ -243,8 +305,8 @@
 
     {# Tabela de projetos #}
     <div class="card">
-        <div class="card-header">
-            <h2>📁 Projetos ({{ projetos | length }})</h2>
+        <div class="card-header" style="background:var(--laranja); border-bottom:none;">
+            <h2 style="color:#fff;">📁 Projetos ({{ projetos | length }})</h2>
         </div>
 
         {% if filtro_turma or filtro_turno or filtro_status or filtro_busca %}
@@ -328,8 +390,8 @@
 
 {# ── TABELA DE USUÁRIOS ── #}
 <div class="card">
-    <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
-        <h2>👥 Usuários (<span id="count-header">{{ usuarios | length }}</span>)</h2>
+    <div class="card-header" style="background:var(--azul); border-bottom:none; display:flex; align-items:center; justify-content:space-between;">
+        <h2 style="color:#fff;">👥 Usuários (<span id="count-header">{{ usuarios | length }}</span>)</h2>
         <div style="display:flex; gap:.75rem; flex-wrap:wrap;">
             <select id="f-perfil" onchange="filtrarUsuarios()" style="font-size:.8rem; padding:.3rem .6rem; border:1px solid var(--cinza-b); border-radius:6px;">
                 <option value="">Todos os perfis</option>
@@ -355,7 +417,7 @@
             <thead>
                 <tr>
                     <th>#</th><th>Nome</th><th>E-mail</th><th>Perfil</th>
-                    <th>Turma</th><th>Turno</th><th>Cadastrado em</th><th>Ações</th>
+                    <th>Turma</th><th>Cadastrado em</th><th>Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -365,18 +427,25 @@
                     <td><strong>{{ u.nome }}</strong></td>
                     <td style="font-size:.85rem;">{{ u.email }}</td>
                     <td>
-                        <span style="background:{{ '#1a2f6e' if u.perfil=='admin' else ('#f07621' if u.perfil=='professor' else '#16a34a') }};
+                        <span style="background:{{ '#1a5580' if u.perfil=='admin' else ('#f07621' if u.perfil=='professor' else ('#16a34a' if u.perfil=='aluno' else '#6b7280')) }};
                                      color:#fff;font-size:.65rem;font-weight:700;padding:2px 8px;
                                      border-radius:20px;text-transform:uppercase;letter-spacing:.05em;">
                             {{ u.perfil }}
                         </span>
                     </td>
-                    <td>{% if u.turma %}<span style="background:#e0e7ff;color:#3730a3;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:600;">{{ u.turma }}</span>{% else %}—{% endif %}</td>
-                    <td>{% if u.turno %}<span style="background:#fef3c7;color:#92400e;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:600;">{{ u.turno_display }}</span>{% else %}—{% endif %}</td>
+                    <td>
+                        {% if u.turma %}
+                        <span style="background:#e0e7ff;color:#3730a3;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:600;">{{ u.turma }}</span>
+                        {% endif %}
+                        {% if u.turno %}
+                        <span style="background:#fef3c7;color:#92400e;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:600;{% if u.turma %}margin-left:.25rem;{% endif %}">{{ u.turno_display }}</span>
+                        {% endif %}
+                        {% if not u.turma and not u.turno %}—{% endif %}
+                    </td>
                     <td style="font-size:.78rem;color:#9ca3af;">{{ u.criado_em.strftime('%d/%m/%Y') }}</td>
                     <td>
                         <div style="display:flex;gap:.4rem;">
-                            <a href="{{ url_for('admin.editar_usuario', id=u.id) }}" class="btn btn-primary btn-sm">Editar</a>
+                            <a href="{{ url_for('admin.editar_usuario', id=u.id) }}" class="btn btn-azul btn-sm">Editar</a>
                             {% if u.id != current_user.id %}
                             <form method="POST" action="{{ url_for('admin.excluir_usuario', id=u.id) }}"
                                   onsubmit="return confirm('Excluir {{ u.nome }}?');" style="display:inline;">

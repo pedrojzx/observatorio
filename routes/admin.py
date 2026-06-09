@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Desenvolvedor: Timóteo Batista
+# Módulo: Painel Administrativo — dashboard, CRUD de usuários e exportação CSV
+# Projeto Integrador — ADS 2º Módulo · Senac Fecomércio Pernambuco · 2025/2026
+# ─────────────────────────────────────────────────────────────────────────────
+
 import csv
 import io
 from flask import Blueprint, render_template, redirect, url_for, flash, request, Response, make_response
